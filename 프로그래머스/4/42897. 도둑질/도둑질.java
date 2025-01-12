@@ -18,6 +18,6 @@ class Solution {
         for(int i=2;i<money.length;i++){
             dp2[i]=Math.max(dp2[i-1],dp2[i-2]+money[i]);
         }
-        return Math.max(dp1[money.length-2],dp2[money.length-1]);
+        return Math.max(dp1[money.length-1],dp2[money.length-1]);
     }
 }
