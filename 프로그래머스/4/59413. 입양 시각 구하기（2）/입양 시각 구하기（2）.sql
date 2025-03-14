@@ -1,0 +1,10 @@
+-- 1.각 시간대별 입양 몇 건?
+-- 2.시간대 순 정렬
+SET @HOUR = -1;
+SELECT (@HOUR := @HOUR+1) AS HOUR,
+       (SELECT COUNT(HOUR(DATETIME))
+        FROM ANIMAL_OUTS
+        WHERE HOUR(DATETIME)=@HOUR
+       ) AS HOUR
+FROM ANIMAL_OUTS
+WHERE @HOUR < 23;
