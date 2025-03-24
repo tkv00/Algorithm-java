@@ -1,33 +1,45 @@
 import java.util.*;
 class Solution {
+    private static int sum(boolean[] arr){
+        int sum=0;
+        for(boolean value:arr){
+            if(value) sum++;
+        }
+        return sum;
+    }
+    
     public int solution(int n, int[] lost, int[] reserve) {
-        Arrays.sort(lost);
-        Arrays.sort(reserve);
-        //여벌 체육복을 가져온 학생 도난 당한 경우 제외
-        Set<Integer> lostArr=new HashSet<>();
-        Set<Integer> resArr=new HashSet<>();
-        
-        //여벌 가져온 사람
-        for(int r:reserve){
-            resArr.add(r);
+        /*
+        1.번호는 체격순
+        2.앞번호 학생이나 바로 뒤 학생한테만 빌리기 가능
+        3.최대한 많은 학생이 체육복 가지고 있아야 함
+        */
+        int[] cloth=new int[n+1];
+        for(int idx:lost){
+            cloth[idx]--;
+        }
+        for(int idx:reserve){
+            cloth[idx]++;
         }
         
-        //체육복 잃어버린 사람
-        for(int l:lost){
-            if(resArr.contains(l)){
-                resArr.remove(l);
-            }else{
-                lostArr.add(l);
+        for(int i=1;i<=n;i++){
+            if(cloth[i]<0){
+                if(i-1>=1 && cloth[i-1]>=1){
+                    cloth[i-1]--;
+                    cloth[i]++;
+                }else if(i+1<=n && cloth[i+1]>=1){
+                    cloth[i+1]--;
+                    cloth[i]++;
+                }
+            }
+        }
+        int sum=0;
+        for(int idx:cloth){
+            if(idx>=0){
+                sum++;
             }
         }
         
-        for(Integer i:resArr){
-            if(lostArr.contains(i-1)){
-                lostArr.remove(i-1);
-            }else if(lostArr.contains(i+1)){
-                lostArr.remove(i+1);
-            }
-        }
-        return n-lostArr.size();
+        return sum-1;
     }
 }
