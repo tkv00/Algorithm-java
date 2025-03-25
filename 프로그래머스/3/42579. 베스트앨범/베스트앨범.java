@@ -1,31 +1,38 @@
 import java.util.*;
 
 class Solution {
+    private static final int LIMIT=2;
     public int[] solution(String[] genres, int[] plays) {
-        List<Integer>answer=new ArrayList<>();
-        HashMap<String,Integer> map1=new HashMap<>();
-        HashMap<String,List<Integer>> map2=new HashMap<>();
+        //장르-재생 횟수
+        HashMap<String,Integer> genres_count=new HashMap<>();
         
-        for(int i=0;i<genres.length;i++){
-            map1.put(genres[i],map1.getOrDefault(genres[i],0)+plays[i]);
-            if(!map2.containsKey(genres[i])){
-                map2.put(genres[i],new ArrayList<>());
-            }
-            //인덱스 저장
-            map2.get(genres[i]).add(i);
+        //장르-노래 인덱스
+        HashMap<String,List<Integer>> genres_index=new HashMap<>();
+        
+        int size=genres.length;
+        for(int i=0;i<size;i++){
+            genres_count.put(genres[i],
+                             genres_count.getOrDefault(genres[i],0)+plays[i]);
+            List<Integer> list=genres_index.getOrDefault(genres[i],new ArrayList<>());
+            list.add(i);
+            genres_index.put(genres[i],list);
         }
         
-        List<String> keySet=new ArrayList<>(map1.keySet());
-        keySet.sort((o1,o2)->map1.get(o2).compareTo(map1.get(o1)));
+        //장르-재생 횟수 map 내림차순 정렬
+        List<String> countKeySet=new ArrayList<>(genres_count.keySet());
+        countKeySet.sort((o1,o2)->genres_count.get(o2)-genres_count.get(o1));
         
-        for(String str:keySet){
-            List<Integer> arr=map2.get(str);
-            arr.sort((o1,o2)->plays[o2]-plays[o1]);
+        List<Integer> result=new ArrayList<>();
+        
+        for(String genre:countKeySet){
+            List<Integer> indexList=genres_index.get(genre);
+            //내림차순 정렬
+            indexList.sort((o1,o2)->plays[o2]-plays[o1]);
             
-            for(int i=0;i<Math.min(2,arr.size());i++){
-                answer.add(arr.get(i));
+            for(int i=0;i<Math.min(LIMIT,indexList.size());i++){
+                result.add(indexList.get(i));
             }
         }
-        return answer.stream().mapToInt(Integer::intValue).toArray();
+        return result.stream().mapToInt(Integer::intValue).toArray();
     }
 }
