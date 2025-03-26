@@ -1,33 +1,35 @@
 import java.util.*;
 
 class Solution {
+    private static int PROFIT=100;
     public int[] solution(String[] enroll, String[] referral, String[] seller, int[] amount) {
-        int[]result=new int[enroll.length];
-        //사람-금액 해시
-        HashMap<String,Integer> person_money=new HashMap<>();
-        //사람-부모 해시
-        HashMap<String,String> person_parent=new HashMap<>();
+        //총 결과
+        HashMap<String,Integer> result = new HashMap<>();
+        //자식-부모 관계 정의
+        HashMap<String,String> child_parent=new HashMap<>();
         
-        //초기화
         for(int i=0;i<enroll.length;i++){
-            person_money.put(enroll[i],0);
-            person_parent.put(enroll[i],referral[i]);
+            result.put(enroll[i],0);
+            child_parent.put(enroll[i],referral[i]);
         }
         
         for(int i=0;i<seller.length;i++){
-            String now=seller[i];
-            int cost=amount[i]*100;
-            while(!now.equals("-")){
-                person_money.put(now,person_money.getOrDefault(now,0)+cost-cost/10);
-                now=person_parent.get(now);
-                cost=cost/10;
-                if(cost==0)break;
-            }
+            String child=seller[i];
+            int minus=(PROFIT*amount[i])/10;
+            result.put(child,result.getOrDefault(child,0)+amount[i]*PROFIT-minus);
+            do{
+                child=child_parent.get(child);
+                result.put(child,result.getOrDefault(child,0)+minus-minus/10);
+                minus/=10;
+                if(minus==0) break;
+            }while(!child.equals("-"));
         }
-      
-        for(int i=0;i<enroll.length;i++){
-            result[i]=person_money.get(enroll[i]);
+        int[] resultArray=new int[enroll.length];
+        int idx=0;
+        for(String str:enroll){
+            resultArray[idx++]=result.get(str);
         }
-        return result;
+        return resultArray;
+        
     }
 }
