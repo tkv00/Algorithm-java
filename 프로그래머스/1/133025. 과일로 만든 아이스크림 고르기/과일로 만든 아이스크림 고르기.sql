@@ -1,7 +1,14 @@
-select i.FLAVOR
-from FIRST_HALF as f 
-inner join ICECREAM_INFO as i
-on f.FLAVOR = i.FLAVOR
-where f.TOTAL_ORDER >= 3000 
-and i.INGREDIENT_TYPE Like 'fruit_based'
-order by f.TOTAL_ORDER DESC;
+select 
+    f.flavor
+from
+    first_half as f
+inner join
+    icecream_info as i
+on
+    f.flavor = i.flavor
+where
+    f.total_order > 3000
+    and
+    i.flavor in ('strawberry','peach','strawberry','melon','mango','watermelon','orange','pineapple')
+order by
+    f.total_order desc;
