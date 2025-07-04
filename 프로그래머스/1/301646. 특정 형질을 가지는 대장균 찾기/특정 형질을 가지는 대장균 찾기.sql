@@ -1,5 +1,16 @@
--- 코드를 작성해주세요
-select count(*) as COUNT
-from ECOLI_DATA
-where (GENOTYPE & 2) = 0 
-and ((GENOTYPE & 1) >0 or (GENOTYPE & 4)>0);
+select
+    count(*) as count
+from
+    ecoli_data
+where 
+    genotype & 2 = 0
+and
+(
+    genotype & 3 = 3
+or
+    genotype & 1 = 1
+or
+    genotype & 4 = 4
+)
+;
+    
