@@ -1,5 +1,9 @@
--- 코드를 작성해주세요
-SELECT COUNT(MONTH(TIME)) AS FISH_COUNT,MONTH(TIME) AS MONTH
-FROM FISH_INFO
-GROUP BY MONTH
-ORDER BY MONTH ASC;
+select
+    count(*) as FISH_COUNT,
+    month(TIME) as MONTH
+from
+    fish_info
+group by
+    month(TIME)
+order by
+    month(time);
