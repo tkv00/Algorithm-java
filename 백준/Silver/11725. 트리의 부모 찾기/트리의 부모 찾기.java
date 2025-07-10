@@ -1,55 +1,43 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-    public static ArrayList<ArrayList<Integer>> graph;
-    public static int node;
-    public static int x;
-    public static int y;
-    public static int[] parent;
-    public static int[] visited;
-    public static void main(String[] args) throws IOException {
-        graph=new ArrayList<ArrayList<Integer>>();
+    private static StringTokenizer st;
+    private static HashMap<Integer,ArrayList<Integer>> map;
+    private static int N;
+    private static int[] parent;
+    public static void main(String[] args) throws IOException{
         BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        N=Integer.parseInt(br.readLine());
+        map=new HashMap<>();
+        parent=new int[N+1];
 
+        for(int i=0;i<N-1;i++){
+            st=new StringTokenizer(br.readLine());
+            int first=Integer.parseInt(st.nextToken());
+            int second=Integer.parseInt(st.nextToken());
 
-        node=Integer.parseInt(br.readLine());
-        parent=new int[node+1];
-        visited=new int[node+1];
-        visited[0]=1;
-        parent[1]=1;
+            map.putIfAbsent(first,new ArrayList<>());
+            map.putIfAbsent(second,new ArrayList<>());
 
-        for(int i=0;i<=node;i++){
-            graph.add(new ArrayList<Integer>());
+            map.get(first).add(second);
+            map.get(second).add(first);
         }
-        for(int i=0;i<node-1;i++){
-            StringTokenizer st=new StringTokenizer(br.readLine());
-            x=Integer.parseInt(st.nextToken());
-            y=Integer.parseInt(st.nextToken());
-
-            graph.get(x).add(y);
-            graph.get(y).add(x);
-
-        }
-
-        dfs(1);
-        for(int i=2;i<=node;i++){
-            System.out.println(parent[i]);
+        StringBuilder sb=new StringBuilder();
+        DFS(1);
+        for(int i=2;i<=N;i++){
+            sb.append(parent[i]).append("\n");
         }
 
+        System.out.print(sb);
     }
-    public static void dfs(int node){
-        visited[node]=1;
-        for(int i: graph.get(node)){
-            if(visited[i]==0){
-                parent[i]=node;
-                visited[i]=1;
-                dfs(i);
+    private static void DFS(int now){
+        ArrayList<Integer> list=map.get(now);
+        for(int next:list){
+            if(parent[next]==0){
+                parent[next]=now;
+                DFS(next);
             }
         }
     }
-
 }
