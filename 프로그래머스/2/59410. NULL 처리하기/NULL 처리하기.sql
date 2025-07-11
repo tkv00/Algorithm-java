@@ -1,3 +1,12 @@
--- 코드를 입력하세요
-SELECT ANIMAL_TYPE,ifnull(NAME,"No name")as NAME,SEX_UPON_INTAKE
-from ANIMAL_INS;
+select
+    animal_type,
+    case
+        when name is null then 'No name'
+        else name
+        end
+    as name,
+    sex_upon_intake
+from
+    animal_ins
+order by
+    animal_id;
