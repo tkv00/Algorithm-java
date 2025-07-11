@@ -1,6 +1,12 @@
--- 코드를 작성해주세요
-select i.ITEM_ID,i.ITEM_NAME
-from ITEM_INFO as i
-INNER JOIN  ITEM_TREE as t
-ON i.ITEM_ID = t.ITEM_ID
-where t.PARENT_ITEM_ID is null;
+select
+    i.item_id,
+    i.item_name
+from
+    item_info as i
+    inner join
+    item_tree as t
+    on i.item_id = t.item_id
+where
+    t.parent_item_id is null
+order by 
+    i.item_id asc;
