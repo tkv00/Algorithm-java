@@ -1,5 +1,10 @@
--- 코드를 입력하세요
-SELECT SUBSTRING(PRODUCT_CODE,1,2) AS CATEGORY, COUNT(*)
-FROM PRODUCT
-GROUP BY 1
-ORDER BY 1 ASC;
+select
+    SUBSTR(PRODUCT_CODE,1,2) as CATEGORY,
+    COUNT(*) as PRODUCTS
+from
+    product
+group by
+    SUBSTR(PRODUCT_CODE,1,2)
+order by
+    CATEGORY;
+    
