@@ -1,5 +1,17 @@
--- 코드를 입력하세요
-SELECT WAREHOUSE_ID,WAREHOUSE_NAME, ADDRESS, IF(FREEZER_YN is null , 'N',FREEZER_YN) as FREEZER_YN
-from FOOD_WAREHOUSE
-where WAREHOUSE_NAME like '%경기%'
-order by WAREHOUSE_ID asc;
+select
+    warehouse_id,
+    warehouse_name,
+    address,
+    case
+        when freezer_yn is null then 'N'
+        else freezer_yn
+        end
+    as freezer_yn
+from
+    food_warehouse
+where
+    address like '경기도%' 
+order by
+    warehouse_id asc;
+    
+    
