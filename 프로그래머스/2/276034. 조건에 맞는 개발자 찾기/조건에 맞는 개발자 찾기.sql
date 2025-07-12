@@ -1,12 +1,26 @@
-SELECT ID, EMAIL, FIRST_NAME, LAST_NAME
-FROM DEVELOPERS
-WHERE (SKILL_CODE & (
-    SELECT CODE
-    FROM SKILLCODES
-    WHERE NAME ='Python'
-)) || (SKILL_CODE & (
-    SELECT CODE
-    FROM SKILLCODES
-    WHERE NAME ='C#'
-))
-ORDER BY ID ASC;
+select
+    d.id,
+    d.email,
+    d.first_name,
+    d.last_name
+from
+    developers as d
+where
+    d.skill_code & (
+        select 
+            code
+        from
+            skillcodes
+        where
+            name like 'Python'
+    ) OR
+    d.skill_code & (
+        select
+            code
+        from
+            skillcodes
+        where
+            name like 'C#'
+    )
+order by
+    id asc;
