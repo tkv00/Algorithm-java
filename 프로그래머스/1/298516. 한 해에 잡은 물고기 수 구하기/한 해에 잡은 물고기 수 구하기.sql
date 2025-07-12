@@ -1,4 +1,7 @@
--- 코드를 작성해주세요
-SELECT COUNT(*) AS FISH_COUNT
-FROM FISH_INFO
-WHERE YEAR(DATE_FORMAT(TIME,'%Y-%m-%d'))=2021;
+select
+    count(*) as FISH_COUNT
+from    
+    fish_info
+where
+    YEAR(TIME) = 2021
+;
