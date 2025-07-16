@@ -1,16 +1,19 @@
--- 코드를 입력하세요
--- 조회수가 가장 높은 중고거래 게시물
--- 첨부 파일 경로  파일ID 기준 내림차순
--- /home/grep/src/ + boardId/ + FILE_ID/ +FILE_NAME +FILE_EXT 
-SELECT CONCAT('/home/grep/src/',T2.BOARD_ID,'/',T2.FILE_ID,T2.FILE_NAME,T2.FILE_EXT) AS FILE_PATH
-FROM USED_GOODS_BOARD AS T1
-INNER JOIN USED_GOODS_FILE AS T2 ON T1.BOARD_ID = T2.BOARD_ID
-WHERE T2.BOARD_ID = (
-    SELECT BOARD_ID
-    FROM USED_GOODS_BOARD
-    ORDER BY VIEWS DESC
-    LIMIT 1
-)
-ORDER BY T2.FILE_ID DESC
-;
-
+select
+    concat('/home/grep/src/',b.board_id,'/',f.file_id,f.file_name,f.file_ext)
+    as file_path
+from
+    USED_GOODS_BOARD as b
+    inner join
+    USED_GOODS_FILE as f
+    on
+    b.board_id = f.board_id
+where
+    b.views in (
+        select
+            max(views)
+        from
+            USED_GOODS_BOARD
+    )
+order by
+    f.file_id desc;
+    
