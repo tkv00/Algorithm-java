@@ -1,11 +1,16 @@
--- 코드를 입력하세요
-SELECT b.CATEGORY,SUM(s.SALES) AS TOTAL_SALES
-FROM BOOK AS b
-INNER JOIN (
-    SELECT BOOK_ID,SALES
-    FROM BOOK_SALES
-    WHERE SALES_DATE BETWEEN '2022-01-01' AND '2022-01-31'
-) AS s
-ON b.BOOK_ID = s.BOOK_ID
-GROUP BY b.CATEGORY
-ORDER BY b.CATEGORY ASC;
+select
+    b.category,
+    sum(s.sales) as total_sales
+from
+    book as b
+    inner join
+    book_sales as s
+    on b.book_id = s.book_id
+where
+    year(s.sales_date)=2022 
+    and
+    month(s.sales_date) = 1
+group by
+    b.category
+order by
+    b.category asc;
