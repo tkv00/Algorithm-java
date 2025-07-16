@@ -1,6 +1,13 @@
--- 코드를 입력하세요
-SELECT HOUR(DATETIME) AS HOUR,COUNT(*) AS COUNT
-FROM ANIMAL_OUTS
-WHERE HOUR(DATETIME) BETWEEN 9 AND 20
-GROUP BY HOUR(DATETIME)
-ORDER BY HOUR(DATETIME);
+select
+    hour(datetime) as hour,
+    count(*) as 'count'
+from
+    animal_outs
+where
+    hour(datetime) >= 9 
+    and 
+    (hour(datetime) <= 19 and minute(datetime)<=59)
+group by
+    hour
+order by
+    hour asc;
