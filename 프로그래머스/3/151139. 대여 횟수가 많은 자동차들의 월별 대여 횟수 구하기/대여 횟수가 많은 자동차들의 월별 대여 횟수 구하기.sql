@@ -1,20 +1,31 @@
--- 1.2022/08 ~ 2022/10 대여수 5회이상
--- 2.월별 자동차 ID 별 총 대여 횟수
--- 3.월 기준 오름차순, 자동차 ID 기준 내림차순
--- 총 대여 수 0임면 제외
-SELECT 
-    MONTH(START_DATE) AS MONTH,
-    CAR_ID,
-    COUNT(CAR_ID) AS RECORDS
-FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
-WHERE START_DATE BETWEEN '2022-08-01' AND '2022-10-31'
-    AND CAR_ID IN (
-        SELECT CAR_ID
-        FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
-        WHERE START_DATE BETWEEN '2022-08-01' AND '2022-10-31'
-        GROUP BY CAR_ID
-        HAVING COUNT(CAR_ID)>=5
+select
+    month(start_date) as month,
+    car_id,
+    count(history_id) as records
+from 
+    CAR_RENTAL_COMPANY_RENTAL_HISTORY
+where
+    year(start_date) = 2022
+    and
+    (month(start_date)>=8 and month(start_date)<=10)
+    and
+    car_id in (
+        select 
+            car_id
+        from
+            CAR_RENTAL_COMPANY_RENTAL_HISTORY
+        where
+             year(start_date) = 2022
+        and
+            (month(start_date)>=8 and month(start_date)<=10)
+        group by
+            car_id
+        having
+            count(history_id) >= 5
     )
-GROUP BY MONTH(START_DATE),CAR_ID
-HAVING COUNT(CAR_ID) > 0
-ORDER BY MONTH(START_DATE) ASC, CAR_ID DESC;
+group by
+    month,car_id
+having 
+    records > 0
+order by
+    month asc,car_id desc;
