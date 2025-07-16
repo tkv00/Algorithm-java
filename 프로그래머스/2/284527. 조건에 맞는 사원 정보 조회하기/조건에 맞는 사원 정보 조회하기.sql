@@ -1,13 +1,18 @@
--- 1. 2022년도 평가 점수 가장 높은 사원 정보
--- 2. 2022녀도 사원들의 점수,사번,성명,직책,이메일
-SELECT SUM(G.SCORE) AS SCORE,
-      E.EMP_NO,
-      E.EMP_NAME,
-      E.POSITION,
-      E.EMAIL
-FROM HR_EMPLOYEES AS E
-     INNER JOIN HR_GRADE AS G ON E.EMP_NO = G.EMP_NO
-WHERE G.YEAR=2022
-GROUP BY E.EMP_NO,G.YEAR
-ORDER BY SCORE DESC
-LIMIT 1;
+select
+    sum(c.score) as score,
+    c.emp_no,
+    b.emp_name,
+    b.position,
+    b.email
+from
+    hr_grade as c
+    inner join
+    hr_employees as b
+    on c.emp_no = b.emp_no
+where
+    c.year=2022
+group by
+    c.emp_no
+order by score desc
+limit 1;
+    
