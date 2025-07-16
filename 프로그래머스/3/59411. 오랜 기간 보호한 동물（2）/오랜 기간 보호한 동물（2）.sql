@@ -1,6 +1,12 @@
--- 코드를 입력하세요
-SELECT I.ANIMAL_ID,O.NAME
-FROM ANIMAL_INS AS I
-     INNER JOIN ANIMAL_OUTS AS O ON I.ANIMAL_ID = O.ANIMAL_ID
-ORDER BY O.DATETIME-I.DATETIME DESC
-LIMIT 2;
+select
+    i.animal_id,
+    i.name
+from
+    animal_ins as i
+    inner join
+    animal_outs as o
+    on
+    i.animal_id = o.animal_id
+order by
+    o.datetime-i.datetime desc
+limit 2;
