@@ -1,13 +1,22 @@
--- 코드를 입력하세요
-SELECT a.AUTHOR_ID AS AUTHOR_ID ,
-        a.AUTHOR_NAME AS AUTHOR_NAME,
-        b.CATEGORY AS CATEGORY,
-        SUM(b.PRICE *s.SALES) AS  TOTAL_SALES
-FROM BOOK AS b
-INNER JOIN AUTHOR AS a
-    ON b.AUTHOR_ID = a.AUTHOR_ID
-INNER JOIN BOOK_SALES AS s
-    ON b.BOOK_ID = s.BOOK_ID
-WHERE YEAR(s.SALES_DATE) = 2022 AND MONTH(s.SALES_DATE) = 1
-GROUP BY b.AUTHOR_ID, b.CATEGORY
-ORDER BY b.AUTHOR_ID ASC, b.CATEGORY DESC;
+select
+    a.author_id as AUTHOR_ID,
+    a.author_name as AUTHOR_NAME,
+    b.category as CATEGORY,
+    sum(s.sales*b.price) as TOTAL_SALES
+from 
+    book as b
+    inner join author as a
+    on
+        b.author_id = a.author_id
+    inner join book_sales as s
+    on
+        s.book_id = b.book_id
+where
+    year(s.SALES_DATE)=2022
+    and
+    month(s.SALES_DATE)=1
+group by
+    a.author_id,b.category
+order by
+    a.author_id asc,b.category desc;
+    
