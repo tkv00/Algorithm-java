@@ -1,10 +1,13 @@
--- 코드를 입력하세요
--- 1. 세단 자동차 10월 대여 기록
--- 2. 자동차 ID 중복X
--- 3. 자동차 ID 기준 내림차순 정렬
-SELECT DISTINCT C.CAR_ID 
-FROM CAR_RENTAL_COMPANY_CAR AS C
-     INNER JOIN CAR_RENTAL_COMPANY_RENTAL_HISTORY AS H ON C.CAR_ID = H.CAR_ID
-WHERE C.CAR_TYPE = '세단' AND
-      MONTH(START_DATE) = 10
-ORDER BY C.CAR_ID DESC;
+select
+    distinct c.car_id as CAR_ID
+from
+    CAR_RENTAL_COMPANY_CAR as c
+    inner join
+    CAR_RENTAL_COMPANY_RENTAL_HISTORY as h
+    on c.car_id = h.car_id
+where
+    c.car_type like '세단'
+    and
+    year(h.start_date)=2022 and month(h.start_date)=10
+order by
+    c.car_id desc;
