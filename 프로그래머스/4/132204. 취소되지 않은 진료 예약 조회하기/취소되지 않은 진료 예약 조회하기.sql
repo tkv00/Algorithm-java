@@ -1,12 +1,23 @@
--- 코드를 입력하세요
--- 1. 2022 4 13 취소되지 않은 CS 진료 예약
--- 2. 진료예약 번호,환자 ㅇ름,번호,진료과 코드,의사 이름,진료 예약 일시
--- 3. 진료예약일시 기준 오름차순
-SELECT A.APNT_NO , P.PT_NAME,P.PT_NO,D.MCDP_CD,D.DR_NAME,A.APNT_YMD
-FROM PATIENT AS P
-     INNER JOIN APPOINTMENT AS A ON A.PT_NO = P.PT_NO
-     INNER JOIN DOCTOR AS D ON D.DR_ID = A.MDDR_ID
-WHERE DATE_FORMAT(A.APNT_YMD,'%Y-%m-%d')='2022-04-13' AND
-      A.APNT_CNCL_YMD IS NULL AND
-      A.MCDP_CD = 'CS'
-ORDER BY A.APNT_YMD ASC;
+select
+    a.apnt_no,
+    p.pt_name,
+    p.pt_no,
+    a.mcdp_cd,
+    d.dr_name,
+    a.apnt_ymd
+from
+    patient as p
+    inner join
+    appointment as a
+    on p.pt_no = a.pt_no
+    inner join
+    doctor as d
+    on d.dr_id = a.mddr_id
+where
+    date_format(a.apnt_ymd,'%Y-%m-%d') = '2022-04-13'
+    and
+    d.mcdp_cd like 'CS'
+    and
+    a.apnt_cncl_yn = 'N'
+order by
+    a.apnt_ymd asc;
