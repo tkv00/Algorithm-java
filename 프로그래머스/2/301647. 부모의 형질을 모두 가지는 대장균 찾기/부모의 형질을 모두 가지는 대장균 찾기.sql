@@ -1,6 +1,13 @@
-SELECT c.ID AS ID,c.GENOTYPE AS GENOTYPE,p.GENOTYPE AS PARENT_GENOTYPE
-FROM ECOLI_DATA AS c
-INNER JOIN ECOLI_DATA AS p
-ON c.PARENT_ID = p.ID
-WHERE c.GENOTYPE & p.GENOTYPE = p.GENOTYPE
-ORDER BY c.ID ASC;
+select
+    child.id,
+    child.genotype,
+    parent.genotype as parent_genotype
+from
+    ecoli_data as child
+    inner join
+    ecoli_data as parent
+    on parent.id=child.parent_id
+where
+    parent.genotype & child.genotype = parent.genotype
+order by
+    child.id asc;
