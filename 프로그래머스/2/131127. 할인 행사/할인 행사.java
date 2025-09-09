@@ -1,32 +1,35 @@
 import java.util.*;
 class Solution {
+    private static HashMap<String,Integer> map;
     private static HashMap<String,Integer> copy;
+    
     public int solution(String[] want, int[] number, String[] discount) {
-        HashMap<String,Integer> map=new HashMap<>();
-        int day=0;
+        int answer=0;
+        
+        map=new HashMap<>();
         for(int i=0;i<want.length;i++){
             map.put(want[i],number[i]);
         }
-        //banana 3
-        //apple. 2
-        //rice.  2
-        //pork.  2
-        //pot.   1
-        int size=discount.length-10;
-        for(int i=0;i<=size;i++){
+        
+        for(int i=0;i<discount.length;i++){
             copy=new HashMap<>(map);
             int cnt=0;
-            for(int j=i;j<i+10;j++){
-                if(copy.containsKey(discount[j])){
-                    copy.put(discount[j],copy.get(discount[j])-1);
-                    if(copy.get(discount[j])==0){
-                        copy.remove(discount[j]);
+            
+            for(int j=i;j<Math.min(i+10,discount.length);j++){
+                String now=discount[j];
+                if(copy.containsKey(now)){
+                    int num=copy.get(now)-1;
+                    if(num==0){
                         cnt++;
+                        copy.remove(now);
                     }
+                    else copy.put(now,num);
                 }
             }
-            if(cnt==number.length) day++;
+            if(cnt==want.length) answer++;
+            
         }
-        return day;
+        
+        return answer;
     }
 }
