@@ -1,16 +1,17 @@
 import java.util.*;
 class Solution {
     public String solution(String[] participant, String[] completion) {
-        HashMap<String,Integer> map=new HashMap<>();
-        for(String str:participant){
-            map.put(str,map.getOrDefault(str,0)+1);
+       Map<String,Integer> map=new HashMap<>();
+        for(String people:participant){
+            map.put(people,map.getOrDefault(people,0)+1);
         }
-        for(String str:completion){
-            map.put(str,map.get(str)-1);
+        for(String people:completion){
+            map.put(people,Math.max(0,map.get(people)-1));
         }
-        for(String str:map.keySet()){
-            if(map.get(str)>=1) return str;
+        
+        for(String name:map.keySet()){
+            if(map.get(name)!=0) return name;
         }
-        return "";
+        return null;
     }
 }
