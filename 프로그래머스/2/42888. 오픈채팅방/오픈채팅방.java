@@ -1,26 +1,41 @@
 import java.util.*;
 class Solution {
+    private static final String IN="님이 들어왔습니다.";
+    private static final String OUT="님이 나갔습니다.";
+    private static List<String> result;
+    private static Map<String,String> user;
     public String[] solution(String[] record) {
-        HashMap<String,String> map=new HashMap<>();
-        List<String> result=new ArrayList<>();
+        result=new ArrayList<>();
+        user=new HashMap<>();
         
-        for(String str:record){
-            if(!str.startsWith("Leave")){
-                String[] nstr=str.split(" ");
-                map.put(nstr[1],nstr[2]);
+        for(String input:record){
+            String order=input.split(" ")[0];
+            if(order.equals("Enter") || order.equals("Change")){
+                String uid=input.split(" ")[1];
+                String name=input.split(" ")[2];
+                user.put(uid,name);    
             }
         }
         
-        for(String str:record){
-            String[] nstr=str.split(" ");
+        for(String input:record){
+            String order=input.split(" ")[0];
+            String uid=input.split(" ")[1];
             
-            if(nstr[0].equals("Enter")){
-                result.add(map.get(nstr[1])+"님이 들어왔습니다.");
-            }else if(nstr[0].equals("Leave")){
-                result.add(map.get(nstr[1])+"님이 나갔습니다.");
+            switch(order){
+                case "Enter":
+                    result.add(user.get(uid)+IN);
+                    break;
+                case "Leave":
+                    result.add(user.get(uid)+OUT);
+                    break;
             }
         }
         
-        return result.toArray(String[]::new);
+        String[] answer=new String[result.size()];
+        for(int i=0;i<result.size();i++){
+            answer[i]=result.get(i);
+        }
+        return answer;
+        
     }
 }
