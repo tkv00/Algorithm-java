@@ -1,48 +1,44 @@
 import java.util.*;
 
 class Solution {
+    private static int[] result;
+    //신고 당한 횟수
+    private static Map<String,Integer> map1;
+    //신고 한 사람 목록
+    private static Map<String,Set<String>> map2;
+    private static Map<String,Integer> indexMap;
     public int[] solution(String[] id_list, String[] report, int k) {
-        //K : 정지 기준 신고 횟수
-        HashMap<String,Integer> map=new HashMap<>();
-        HashMap<String,HashSet<String>> mapping=new HashMap<>();
-    
+        result=new int[id_list.length];
+        map1=new HashMap<>();
+        map2=new HashMap<>();
+        indexMap=new HashMap<>();
+        for(int i=0;i<id_list.length;i++){
+            indexMap.put(id_list[i],i);
+        }
+        
         for(String str:id_list){
-            map.put(str,0);
-            mapping.put(str,new HashSet<>());
+            map2.put(str,new HashSet<>());
         }
         
         for(String str:report){
-            String[]nstr=str.split(" ");
-            //신고한 사람
-            String reporter=nstr[0];
+            //신고 한 사람
+            String from=str.split(" ")[0];
             //신고 당한 사람
-            String reported=nstr[1];
-            
-            if(!mapping.get(reporter).contains(reported)){
-                mapping.get(reporter).add(reported);
-                map.put(reported,map.get(reported)+1);
+            String to=str.split(" ")[1];
+            if(!map2.get(from).contains(to)){
+                map1.put(to,map1.getOrDefault(to,0)+1);
+                map2.get(from).add(to);
             }
         }
-        //신고 횟수이상인 사람 추출
-        HashSet<String> ban=new HashSet<>();
-        for(String str:map.keySet()){
-            if(map.get(str)>=k){
-                ban.add(str);
-            }
-        }
-        int[] result=new int[id_list.length];
         
-        for(int i=0;i<id_list.length;i++){
-            int cnt=0;
-            String str=id_list[i];
-            for(String user:mapping.get(str)){
-                if(ban.contains(user)){
-                    cnt++;
-                }
+        for(String name:id_list){
+            Set<String> set=map2.get(name);
+            for(String name2:set){
+                if(map1.get(name2)>=k) result[indexMap.get(name)]++;
             }
-            result[i]=cnt;
         }
         return result;
+        
         
     }
 }
