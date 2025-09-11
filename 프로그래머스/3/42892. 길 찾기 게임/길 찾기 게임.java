@@ -1,78 +1,94 @@
 import java.util.*;
 
 class Solution {
-    static class Node{
+    private static class Node{
         Node left;
         Node right;
-        int idx;
+        int index;
         int x;
         int y;
         
-        Node(int x,int y,int idx){
-            this.idx=idx;
+        Node(int index,int x,int y){
+            this.index=index;
             this.x=x;
             this.y=y;
             this.left=null;
             this.right=null;
         }
-    }
-    //전위순회 정답 배열
-    private static int[][] result;
-    private static int idx1=0;
-    private static int idx2=0;
-    
-    private static void preorder(Node node){
-        if(node==null) return;
         
-        result[0][idx1++]=node.idx;
-        preorder(node.left);
-        preorder(node.right);
-    }
-    
-    //후위순회 정답 배열
-    private static void postorder(Node node){
-        if(node==null) return;
-        
-        postorder(node.left);
-        postorder(node.right);
-        result[1][idx2++]=node.idx;
-    }
-    private static void makeBinaryTree(Node parent,Node child){
-        if(parent.x>child.x){
-            if(parent.left==null){
-                parent.left=child;
-            }else{
-                makeBinaryTree(parent.left,child);
-            }
+        private void addLeft(Node node){
+            this.left=node;
         }
-        else if(parent.x<child.x){
-            if(parent.right==null){
-                parent.right=child;
-            }else{
-                makeBinaryTree(parent.right,child);
-            }
+        
+        private void addRight(Node node){
+            this.right=node;
+        }
+        
+        private int getIndex(){
+            return this.index;
         }
     }
+    private static void buildTree(Node parent,Node child){
+        if(child.y >= parent.y) return;
+        
+        //왼쪽 자식
+        if(child.x<parent.x){
+            if(parent.left==null) parent.addLeft(child);
+            else buildTree(parent.left,child);
+        }
+        
+        //오른쪽 자식
+        if(child.x>parent.x ){
+            if(parent.right==null) parent.addRight(child);
+            else buildTree(parent.right,child);
+        }
+    }
+    
+    //전위 순회
+    private static void preOrder(int depth,Node node){
+        if(node==null) return;
+        pre[preIdx++]=node.index;
+        preOrder(depth+1,node.left);
+        preOrder(depth+1,node.right);
+    }
+    
+    //후위 순회
+    private static void postOrder(int depth,Node node){
+        if(node==null) return;
+        postOrder(depth+1,node.left);
+        postOrder(depth+1,node.right);
+        post[postIdx++]=node.index;
+    }
+    
+    private static Node[] nodes;
+    private static Node root;
+    private static int[] pre; //전위 순회
+    private static int[] post; //후위 순회
+    private static int preIdx;
+    private static int postIdx;
     public int[][] solution(int[][] nodeinfo) {
-        int size=nodeinfo.length;
-        Node[] nodes=new Node[size];
-        result = new int[2][size];
-        int idx=1;
-        for(int[] arr : nodeinfo){
-            Node node = new Node(arr[0],arr[1],idx);
-            nodes[idx-1]=node;
-            idx++;
-        }
-        Arrays.sort(nodes,(o1,o2)->(o2.y==o1.y ? o1.x-o2.x : o2.y-o1.y));
+        nodes=new Node[nodeinfo.length];
+        preIdx=0;
+        postIdx=0;
         
-        Node parent=nodes[0];
-        for(int i=1;i<size;i++){
-            makeBinaryTree(parent,nodes[i]);
+        for(int i=0;i<nodeinfo.length;i++){
+            nodes[i]=new Node(i+1,nodeinfo[i][0],nodeinfo[i][1]);
         }
         
-        preorder(nodes[0]);
-        postorder(nodes[0]);
+        pre=new int[nodeinfo.length];
+        post=new int[nodeinfo.length];
         
-        return result;
+        Arrays.sort(nodes,(a,b)->a.y==b.y ? a.x-b.x : b.y-a.y);
+        root=nodes[0];
+        
+        for(int i=1;i<nodeinfo.length;i++){
+            buildTree(root,nodes[i]);
+        }
+        
+        preOrder(0,root);
+        postOrder(0,root);
+        
+        return new int[][]{pre,post};
+       
     }
 }
