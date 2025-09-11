@@ -1,31 +1,25 @@
-import java.util.HashSet;
+import java.util.*;
 class Solution {
+    private static Set<String> set;
     public int[] solution(int n, String[] words) {
-        int[] answer = new int[2];
-        int[] union_array=new int[words.length];
-        int find_index=-1;
-        int second=1;
-            
-        HashSet<String> set=new HashSet<>();
-        for(int i=0;i<words.length;i++){
-            //끝말잇기가 성립X
-            if(!set.add(words[i])){
-                find_index=i;
-                break;
-            }
-          
-            if(i>0 && (words[i-1].charAt(words[i-1].length()-1)!=words[i].charAt(0))){
-                find_index=i;
-                break;
-            }
-            if((i+1)%n==0)second++;
-        }
+        int[] answer=new int[2];
+        set=new HashSet<>();
+        String prev=words[0];
+        set.add(words[0]);
         
-    
-        if(find_index!=-1){
-            int first=(find_index%n)+1;
-            answer[0]=first;
-            answer[1]=second;
+        
+        for(int i=1;i<words.length;i++){
+            char[] prevArr=prev.toCharArray();
+            char[] nowArr=words[i].toCharArray();
+            
+            if(prevArr[prevArr.length-1] != nowArr[0] || set.contains(words[i])) {
+                answer[0]=i%n+1;
+                answer[1]=i/n+1;
+                break;
+            }
+            
+            set.add(words[i]);
+            prev=words[i];
         }
         return answer;
     }
