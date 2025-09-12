@@ -1,94 +1,90 @@
-import java.util.Queue;
-import java.util.LinkedList;
+import java.util.*;
+
 class Solution {
-    static class Node{
-        int x;
-        int y;
-        public Node(int x,int y){
-            this.x=x;
-            this.y=y;
-        }
+    private static char[][] map;
+    private static int[][] dist;
+    private static int[] dx=new int[]{0,0,1,-1};
+    private static int[] dy=new int[]{1,-1,0,0};
+    private static int endRow;
+    private static int endCol;
+    private static int leverRow;
+    private static int leverCol;
+    private static int startRow;
+    private static int startCol;
+    private static Queue<int[]> q;
+    private static boolean[][] visited;
+    private static boolean isValid(int nx,int ny,int rowSize,int colSize){
+        return nx>=0 && nx<rowSize && ny>=0 && ny<colSize && !visited[nx][ny];
     }
-    
-    static final int[] dx={1,0,-1,0};
-    static final int[] dy={0,1,0,-1};
-    static int row_size;
-    static int col_size;
-   
+
     public int solution(String[] maps) {
-        int result=-1;
-        row_size=maps.length;
-        col_size=maps[0].length();
+        int rowSize=maps.length;
+        int colSize=maps[0].length();
+        map=new char[rowSize][colSize];
         
         
-        //Exit 좌표 기록
-        int exit_x=-1;
-        int exit_y=-1;
-        int start_x=-1;
-        int start_y=-1;
-        int lever_x=-1;
-        int lever_y=-1;
-        
-        
-        for(int i=0;i<row_size;i++){
-            for(int j=0;j<col_size;j++){
-                char c=maps[i].charAt(j);
-                if(c=='S'){
-                    start_x=j;
-                    start_y=i;
+        for(int i=0;i<rowSize;i++){
+            char[] chArr=maps[i].toCharArray();
+            for(int j=0;j<colSize;j++){
+                map[i][j]=chArr[j];
+                if(map[i][j]=='S'){
+                    startRow=i;
+                    startCol=j;
                 }
-                if(c=='E'){
-                    exit_x=j;
-                    exit_y=i;
-                }if(c=='L'){
-                    lever_x=j;
-                    lever_y=i;
+                else if(map[i][j]=='L'){
+                    leverRow=i;
+                    leverCol=j;
+                }else if(map[i][j]=='E'){
+                    endRow=i;
+                    endCol=j;
                 }
             }
         }
         
-        
-        //시작점 없는 경우
-        if (start_x == -1 || start_y == -1 || lever_x == -1 || lever_y == -1 || exit_x == -1 || exit_y == -1)           {
-            return -1;
-        }
-        
-         int toLever = bfs(new Node(start_x, start_y), new Node(lever_x, lever_y), maps);
-        int toExit = bfs(new Node(lever_x, lever_y), new Node(exit_x, exit_y), maps);
-
-        if (toLever == -1 || toExit == -1) return -1;
-        return toLever + toExit;
-        
-        
-    }
-    
-     public int bfs(Node start,Node end,String[] maps){
-        Queue<Node> q=new LinkedList<>();
-        int[][] visited=new int[row_size][col_size];
-         visited[start.y][start.x]=1;
-        q.add(new Node(start.x,start.y));
+        //시작점-레버 최소거리 측정.
+        q=new LinkedList<>();
+        dist=new int[rowSize][colSize];
+        visited=new boolean[rowSize][colSize];
+        q.offer(new int[]{startRow,startCol});
+        visited[startRow][startCol]=true;
         
         while(!q.isEmpty()){
-            //현재 노드
-            Node nowNode=q.poll();
-            
-            if(nowNode.x==end.x && nowNode.y==end.y){
-                return visited[nowNode.y][nowNode.x]-1;
-            }
-            
+            int[] now=q.poll();
             for(int i=0;i<4;i++){
-                int new_x=nowNode.x+dx[i];
-                int new_y=nowNode.y+dy[i];
-               
-                if((new_x>=0 && new_x<col_size)&&(new_y>=0 && new_y<row_size)&&
-                    visited[new_y][new_x]==0 && maps[new_y].charAt(new_x)!='X'){
-                    q.add(new Node(new_x,new_y));
-                    visited[new_y][new_x]=visited[nowNode.y][nowNode.x]+1;    
-                }
+                int nx=now[0]+dx[i];
+                int ny=now[1]+dy[i];
+                if(!isValid(nx,ny,rowSize,colSize) || map[nx][ny]=='X') continue;
+                
+                dist[nx][ny]=dist[now[0]][now[1]]+1;
+                visited[nx][ny]=true;
+                q.offer(new int[]{nx,ny});
+            }
+        }
+        int startToLever=dist[leverRow][leverCol];
+        
+        //레버-도착점 거리 측정.
+        q.clear();
+        dist=new int[rowSize][colSize];
+        q.offer(new int[]{leverRow,leverCol});
+        visited=new boolean[rowSize][colSize];
+        visited[leverRow][leverCol]=true;
+        
+        while(!q.isEmpty()){
+            int[] now=q.poll();
+            for(int i=0;i<4;i++){
+                int nx=now[0]+dx[i];
+                int ny=now[1]+dy[i];
+                if(!isValid(nx,ny,rowSize,colSize) || map[nx][ny]=='X') continue;
+                
+                dist[nx][ny]=dist[now[0]][now[1]]+1;
+                q.offer(new int[]{nx,ny});
+                visited[nx][ny]=true;
             }
         }
         
-        return -1;
+        int leverToEnd=dist[endRow][endCol];
         
+        
+        return (startToLever == 0 || leverToEnd == 0) ? -1 : startToLever+leverToEnd;
     }
 }
