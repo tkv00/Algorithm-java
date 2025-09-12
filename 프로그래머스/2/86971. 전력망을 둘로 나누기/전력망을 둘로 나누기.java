@@ -1,63 +1,59 @@
-class Solution {    
-    public void union(int[] arr,int a,int b){
-        a=find(arr,a);
-        b=find(arr,b);
-        if(a<b)arr[b]=a;
-        else arr[a]=b;
-    }
-    public int find(int[] arr,int a){
-        if(arr[a]==a) return arr[a];
-        return arr[a]=find(arr,arr[a]);
-    }
-    
-    public int result(int[][] wires,int n){
-        int[] arr=new int[n+1];
-        for(int i=1;i<=n;i++){
-            arr[i]=i;
-        }
-        for(int i=0;i<wires.length;i++){
-            union(arr,wires[i][0],wires[i][1]);
-        }
+import java.util.*;
+class Solution {
+    //끊을 네트워크 번호 a,b
+    private static int cutting(int a,int b,int n){
+        //연결 끊어버리기
+        map.get(a).remove(Integer.valueOf(b));
+        map.get(b).remove(Integer.valueOf(a));
         
-        //서로 다른 송전탑 개수 세기
-        int[] groupArr=new int[n+1];
+        //탐색 시작 - 네트워크 개수 세기 (1부터만 탐색해도 충분.)
+        int cnt=0;
+        visited=new boolean[n+1];
+        Queue<Integer> q=new LinkedList<>();
+        visited[1]=true;
+        q.offer(1);
+        cnt++;
         
-        for(int i=1;i<=n;i++){
-           int root=find(arr,i);
-            groupArr[root]++;
-        }
-        
-        int groupA=0;
-        int groupB=0;
-        for(int count:groupArr){
-            if(count>0){
-                if(groupA==0) groupA=count;
-                else groupB=count;
+        while(!q.isEmpty()){
+            int now=q.poll();
+            
+            for(int next:map.get(now)){
+                if(!visited[next]){
+                    q.offer(next);
+                    visited[next]=true;
+                    cnt++;
+                }
             }
         }
-        return Math.abs(groupA-groupB);
-    }
-    //행을 삭제하는 메서드
-    public int[][] deleteArr(int[][]arr,int deleteRow){
-        int[][] copyArr=new int[arr.length-1][];
-        int newRow=0;
-        for(int i=0;i<arr.length;i++){
-            if(i!=deleteRow){
-                copyArr[newRow++]=arr[i];
-            }
-        }
-        return copyArr;
+        
+        //연결 복구
+        map.get(a).add(b);
+        map.get(b).add(a);
+        
+        return Math.abs(n-cnt-cnt);
     }
     
+    
+    private static Map<Integer,List<Integer>> map;
+    private static boolean[] visited;
+    private static int MIN=Integer.MAX_VALUE;
     
     public int solution(int n, int[][] wires) {
-        int answer=Integer.MAX_VALUE;
-        for(int i=0;i<n-1;i++){
-            int[][]copy=new int[wires.length-1][];
-            copy=deleteArr(wires,i);
-            answer=Math.min(result(copy,n),answer);
-        }
-        return answer;
         
+        map=new HashMap<>();
+        for(int[] arr:wires){
+            map.putIfAbsent(arr[0],new LinkedList<>());
+            map.putIfAbsent(arr[1],new LinkedList<>());
+            
+            map.get(arr[0]).add(arr[1]);
+            map.get(arr[1]).add(arr[0]);
+        }
+        
+        for(int[] arr:wires){
+            int cnt=cutting(arr[0],arr[1],n);
+            MIN=Math.min(MIN,cnt);
+        }
+        
+        return MIN;
     }
 }
