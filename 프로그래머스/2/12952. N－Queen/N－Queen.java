@@ -1,43 +1,56 @@
+import java.util.*;
 class Solution {
-    private static boolean[][] visited;
-    private static int answer=0;
-   
-    public boolean isSafe(int row,int col,int n){
-        //열 검사
-        for(int i=row;i>=0;i--){
-           if(visited[i][col])return false;
-        }
-            
-        //왼쪽 대각선 검사
-        for(int i=1;row-i>=0 && col-i>=0;i++){
-            if(visited[row-i][col-i])return false;
-        }
-        
-        //오른쪽 위 대각선
-        for(int i=1;row-i>=0 && col+i<n;i++){
-            if(visited[row-i][col+i])return false;
-        }
-        return true;
-               
-    }
-   
-    public void backtrack(int row,int n){
-        if(row==n){
-            answer++;
-            return;
-        }
-        //열에 대해서만 하고 메인에서는 행에 대해서
+    private static boolean[][] map;
+    private static int max;
+    //같은 행에 퀸 존재하는지
+    private static boolean existSameRow(int row,int n){
         for(int i=0;i<n;i++){
-            if(isSafe(row,i,n)){
-                visited[row][i]=true;
-                backtrack(row+1,n);
-                visited[row][i]=false;
+            if(map[row][i]) return true;
+        }
+        return false;
+    }
+    
+    //같은 열에 퀸이 존재하는지
+    private static boolean existSameCol(int col,int n){
+        for(int i=0;i<n;i++){
+            if(map[i][col]) return true;
+        }
+        return false;
+    }
+    
+    //대각선에 퀸이 존재하는지
+    private static boolean existSameCross(int row,int col,int n){
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                if(i==row && j==col) continue;
+                if(Math.abs(row-i)==Math.abs(col-j)){
+                    if(map[i][j]) return true;
+                }
             }
         }
+        return false;
+    }
+    private static void BackTracking(int row,int n){
+        if(row==n){
+            max++;
+            return;
+        }
+        
+        
+
+        for(int col=0;col<n;col++){
+            if(!existSameRow(row,n) && !existSameCol(col,n) && !existSameCross(row,col,n)){
+            map[row][col]=true;
+            BackTracking(row+1,n);
+            map[row][col]=false;
+            }
+        }
+        
     }
     public int solution(int n) {
-       visited=new boolean[n][n];
-        backtrack(0,n);
-        return answer;
+        map=new boolean[n][n];
+        max=0;
+        BackTracking(0,n);
+        return max;
     }
 }
