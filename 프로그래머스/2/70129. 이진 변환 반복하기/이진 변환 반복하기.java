@@ -1,20 +1,30 @@
+import java.util.*;
+import java.io.*;
 class Solution {
-    public int[] solution(String s) {
-        //변환 횟수 변수
-        int cnt=0;
-        //제거된 0의 개수
-        int cntZero=0;
-        while(!s.equals("1")){
+    private static int cnt;
+    private static int zeroCnt;
+    
+    private static void operation(String s){
+        while(true){
+            if(s.equals("1")) break;
+            
+            int size=s.length();
+            //0제거
+            s=s.replaceAll("0","");
+            zeroCnt+=(size-s.length());
+            
+            int length=s.length();
+            //2진수 변환.
+            s=Integer.toString(length,2);
             cnt++;
-            //1.x의 모든 0 제거
-            int k=s.replace("1","").length();//0의 개수 카운트
-            cntZero+=k;
-            
-            //2진법 변환
-            s=Integer.toBinaryString(s.length()-k);
-            
-        }
-        int[] answer = {cnt,cntZero};
-        return answer;
+        }    
+    }
+    
+    
+    public int[] solution(String s) {
+        cnt=0;
+        zeroCnt=0;
+        operation(s);
+        return new int[]{cnt,zeroCnt};
     }
 }
