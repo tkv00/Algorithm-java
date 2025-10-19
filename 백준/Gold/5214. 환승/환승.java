@@ -1,74 +1,68 @@
+
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.StringTokenizer;
-
-import static java.lang.System.exit;
+import java.util.*;
 
 public class Main {
-    static int N;
-    static int K;
-    static int M;
-    static StringTokenizer st;
-    static ArrayList<Integer>[] arrayLists;
-    static boolean[]visit;
-    static Queue<Point> queue=new LinkedList<>();
-    static class Point{
-        int num;
-        int sum;
-        Point(int num,int sum){
-            this.num=num;
-            this.sum=sum;
-        }
-    }
+    private static int N,K,M;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[] visited;
+    private static Queue<Integer> q;
+    private static Map<Integer, List<Integer>> graph;
 
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
         st=new StringTokenizer(br.readLine());
 
+        graph=new HashMap<>();
         N=Integer.parseInt(st.nextToken());
         K=Integer.parseInt(st.nextToken());
         M=Integer.parseInt(st.nextToken());
 
-        arrayLists=new ArrayList[N+M+1];
-        for(int i=0;i<=N+M;i++){
-            arrayLists[i]=new ArrayList<>();
+        visited=new int[N+1+M];
+        q=new LinkedList<>();
+
+        for (int i=1;i<=N+M;i++){
+            graph.putIfAbsent(i,new ArrayList<>());
         }
 
-        visit=new boolean[N+1+M];
-
-        for(int i=1;i<=M;i++){
+        for (int i=0;i<M;i++){
             st=new StringTokenizer(br.readLine());
-            for(int j=1;j<=K;j++){
-                int t=Integer.parseInt(st.nextToken());
-                arrayLists[t].add(N+i);
-                arrayLists[N+i].add(t);
+
+            for (int j=1;j<=K;j++){
+                int num=Integer.parseInt(st.nextToken());
+                graph.get(N+i+1).add(num);
+                graph.get(num).add(N+i+1);
             }
+
         }
-        queue.add(new Point(1,1));
-        if(N==1){
-            System.out.println(1);
-            exit(0);
-        }
-        visit[1]=true;
-        while (!queue.isEmpty()){
-            Point now=queue.poll();
-            for(int c:arrayLists[now.num]){
-                if(!visit[c]){
-                    if(c==N){
-                        System.out.println(now.sum+1);
-                        exit(0);
-                    }
-                    int cnt=c>N? now.sum : now.sum+1;
-                    visit[c]=true;
-                    queue.add(new Point(c,cnt));
+
+    }
+
+
+    private static void operation(){
+        visited[1]=1;
+        q.offer(1);
+
+        while (!q.isEmpty()){
+            int now=q.poll();
+
+            for (int next:graph.get(now)){
+                if (visited[next]==0){
+                    visited[next]=visited[now]+1;
+                    q.offer(next);
                 }
             }
         }
-        System.out.println(-1);
+    }
+    //N:역 개수 / K:서로 연결된 역 개수 / M:하이퍼튜브 개수
+    public static void main(String[] args) throws IOException {
+        init();
+        operation();
+        //System.out.println(Arrays.toString(visited));
+        System.out.println(visited[N] == 0 ? -1 : visited[N]/2+1);
     }
 }
