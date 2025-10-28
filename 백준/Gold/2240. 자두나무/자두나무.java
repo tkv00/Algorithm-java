@@ -4,41 +4,72 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static int[][][] dp;
-    public static int[] arr;
-    public static int N;
-    public static int T;
-    public static StringTokenizer st;
+    private static int T, W;
+    private static BufferedReader br;
+    private static StringTokenizer st;
+    private static int[] arr;
+    private static int[][] dp;
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer(br.readLine());
+
         T = Integer.parseInt(st.nextToken());
-        N = Integer.parseInt(st.nextToken());
+        W = Integer.parseInt(st.nextToken());
 
         arr = new int[T + 1];
-        dp = new int[T + 1][N + 1][3];
+        dp = new int[W + 1][T + 1];
 
         for (int i = 1; i <= T; i++) {
-            st = new StringTokenizer(br.readLine());
-            arr[i] = Integer.parseInt(st.nextToken());
+            int num = Integer.parseInt(br.readLine());
+            arr[i] = num;
+
+
+            if (num == 1) dp[0][i] = dp[0][i - 1] + 1;
+            else dp[0][i] = dp[0][i - 1];
         }
 
+    }
 
-        for (int i = 1; i <= T; i++) {
-            for (int j = 0; j <= N; j++) {
-                if (j == 0) {
-                    dp[i][j][1] = dp[i - 1][j][1] + (arr[i] == 1 ? 1 : 0);
-                } else {
-                    dp[i][j][1] = Math.max(dp[i - 1][j][1], dp[i - 1][j - 1][2]) + (arr[i] == 1 ? 1 : 0);
-                    dp[i][j][2] = Math.max(dp[i - 1][j - 1][1], dp[i - 1][j][2]) + (arr[i] == 2 ? 1 : 0);
-                }
+    private static void operation() {
+        for (int w = 1; w <= W; w++) {
+            //홀수번 움직임 -> 2번 트리
+            //짝수번 움직임 -> 1번트리
+
+            for (int t = 1; t <= T; t++) {
+                //자두를 잡을 수 있는가
+                int gain = getTree(w) == arr[t] ? 1 : 0;
+
+                dp[w][t] = Math.max(dp[w - 1][t - 1], dp[w][t - 1]) + gain;
             }
         }
-        int max = 0;
-        for (int i = 0; i <= N; i++) {
-            max = Math.max(max, Math.max(dp[T][i][1], dp[T][i][2]));
+        //printMap();
+    }
+
+    private static int getTree(int w) {
+        //w 홀수 -> 2번 트리
+        //w 짝수 -> 1번 트리
+        return (w % 2 == 0) ? 1 : 2;
+    }
+
+    private static void printMap() {
+        for (int i = 0; i <= W; i++) {
+            for (int j = 1; j <= T; j++) {
+                System.out.print(dp[i][j] + " ");
+            }
+            System.out.println();
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        operation();
+
+        int max=0;
+        for (int i=0;i<=W;i++){
+            max=Math.max(max,dp[i][T]);
+        }
+
         System.out.println(max);
     }
 }
