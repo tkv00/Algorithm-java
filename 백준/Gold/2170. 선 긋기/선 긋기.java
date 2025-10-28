@@ -1,76 +1,56 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.List;
 import java.util.StringTokenizer;
 
-import static java.lang.System.exit;
-
 public class Main {
-    public static class Point implements Comparable<Point> {
-        int x;
-        int y;
+    private static int N;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static List<int[]> list;
+    private static int len = 0;
 
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        list = new ArrayList<>();
 
-        @Override
-        public int compareTo(Point o1) {
-            if (o1.x == this.x) {
-                return this.y - o1.y;
-            }
-            return this.x - o1.x;
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+
+            list.add(new int[]{x, y});
         }
     }
 
-    public static int N;
-    public static int sum = 0;
+    private static void operation() {
+        list.sort((a, b) -> a[0] == b[0] ? a[1] - b[1] : a[0] - b[0]);
 
-    public static PriorityQueue<Point> pq = new PriorityQueue<Point>();
+        //초기 값 설정
+        int start = list.get(0)[0];
+        int end = list.get(0)[1];
+
+        for (int i = 1; i < list.size(); i++) {
+            int s = list.get(i)[0];
+            int e = list.get(i)[1];
+
+            //값이 갱신
+            if (s > end) {
+                len += end - start;
+                start = s;
+            }
+            end = Math.max(e,end);
+        }
+        len+=end-start;
+    }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        N = Integer.parseInt(br.readLine());
-
-        for (int i = 0; i < N; i++) {
-            StringTokenizer st = new StringTokenizer(br.readLine());
-            int x = Integer.parseInt(st.nextToken());
-            int y = Integer.parseInt(st.nextToken());
-            pq.offer(new Point(x, y));
-        }
-
-        Point p = pq.poll();
-
-        int start=p.x;
-        int end=p.y;
-
-
-        while (!pq.isEmpty()) {
-
-            Point newPoint = pq.poll();
-            int newX = newPoint.x;
-            int newY = newPoint.y;
-
-            if (end >= newX) {
-                end = Math.max(newY,end);
-                //System.out.println(end);
-            } else {
-                //System.out.println("start end"+start+" "+end);
-                sum += end - start;
-                //System.out.println("sum"+sum);
-                start = newX;
-                end = newY;
-                //System.out.println(sum);
-            }
-            //sum += end - start;
-        }
-        sum += end - start;
-        System.out.println(sum);
-
-
+        init();
+        operation();
+        System.out.println(len);
     }
 }
