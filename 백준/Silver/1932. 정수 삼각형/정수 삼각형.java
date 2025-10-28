@@ -4,32 +4,52 @@ import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static int N;
-    public static long[][] arr;
-    public static long[][] dp;
-    public static StringTokenizer st;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-        st=new StringTokenizer(br.readLine());
+    private static int N;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[][]map;
+    private static int[][] dp;
 
-        N=Integer.parseInt(st.nextToken());
-        arr=new long[N+1][N+1];
-        dp=new long[N+1][N+1];
-        for(int i=1;i<=N;i++){
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
+        N=Integer.parseInt(br.readLine());
+        map=new int[N][N];
+
+        for (int i=1;i<=N;i++){
             st=new StringTokenizer(br.readLine());
-            for(int j=1;j<=i;j++){
-                arr[i][j]=Integer.parseInt(st.nextToken());
+            for (int j=0;j<i;j++){
+                map[i-1][j]=Integer.parseInt(st.nextToken());
             }
         }
-        for(int i=1;i<=N;i++){
-            for(int j=1;j<=i;j++){
-                dp[i][j]=+arr[i][j]+Math.max(dp[i-1][j-1],dp[i-1][j]);
+    }
+    private static void DP(){
+        dp=new int[N][N];
+        dp[0][0]=map[0][0];
+
+        for (int i=1;i<N;i++){
+            for (int j=0;j<=i;j++){
+                if (j==0){
+                    dp[i][j]=dp[i-1][j]+map[i][j];
+                    continue;
+                }
+                if (j==i){
+                    dp[i][j]=dp[i-1][j-1]+map[i][j];
+                    continue;
+                }
+
+                dp[i][j]=Math.max(dp[i-1][j-1],dp[i-1][j])+map[i][j];
             }
         }
-        long Max=0;
-        for(int i=1;i<=N;i++){
-            Max=Math.max(dp[N][i],Max);
+    }
+    public static void main(String[] args) throws IOException {
+        init();
+        DP();
+
+        int max=0;
+        for (int i=0;i<N;i++){
+            max=Math.max(max,dp[N-1][i]);
         }
-        System.out.println(Max);
+
+        System.out.println(max);
     }
 }
