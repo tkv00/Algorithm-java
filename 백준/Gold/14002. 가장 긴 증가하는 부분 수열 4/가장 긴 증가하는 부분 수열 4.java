@@ -1,69 +1,67 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
-import static java.lang.System.exit;
-
 public class Main {
-    public static int max;
-    public static int[] arr;
-    public static int[] dp;
-    public static int n;
-public static int[]res;
+    private static int N;
+    private static int[] dp;
+    private static int[] input;
+    private static BufferedReader br;
+    private static StringTokenizer st;
+    private static int result=Integer.MIN_VALUE;
+    private static StringBuilder sb;
+    private static List<Integer> list;
+
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        N = Integer.parseInt(br.readLine());
+        sb=new StringBuilder();
+        list=new ArrayList<>();
+
+        dp = new int[N];
+        input = new int[N];
+
+        st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            input[i] = Integer.parseInt(st.nextToken());
+        }
+    }
+
+    private static void dynamicProgramming() {
+        for (int i = 0; i < N; i++) {
+            dp[i]=1;
+            for (int j = 0; j < i; j++) {
+                if (input[i] > input[j]) {
+                    dp[i] = Math.max(dp[j] + 1, dp[i]);
+                }
+            }
+
+            result=Math.max(dp[i],result);
+        }
+
+        sb.append(result).append("\n");
+    }
+
+    private static void findRoot(){
+        for (int i=N-1;i>=0;i--){
+            if (result==dp[i]){
+                list.add(input[i]);
+                result--;
+            }
+        }
+    }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        init();
+        dynamicProgramming();
+        findRoot();
 
-        n = Integer.parseInt(br.readLine());
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        arr = new int[n];
-        for (int i = 0; i < n; i++) {
-            arr[i] = Integer.parseInt(st.nextToken());
+        for (int i=list.size()-1;i>=0;i--){
+            sb.append(list.get(i)).append(" ");
         }
-        if(n==1){
-            System.out.println(n);
-            System.out.println(arr[0]);
-            exit(0);
-        }
-        dp = new int[n];
-        int v = 0;
-        Arrays.fill(dp, 1);
-        for (int i = 1; i < n; i++) {
-            int max = 0;
-            for (int j = 0; j < i; j++) {
-                if (arr[j] < arr[i]) {
-                    max = Math.max(max, dp[j]);
-                }
-                dp[i] = max + 1;
-            }
-            if (v < dp[i]) {
-                v = dp[i];
-            }
-
-        }
-
-
-        int k=v;
-
-        res=new int[v+1];
-        for (int i = n-1; i >= 0; i--) {
-            if (dp[i] == k) {
-                res[k]=arr[i];
-                k--;
-
-                continue;
-            }
-        }
-
-        System.out.println(v);
-        for(int i=1;i<=v;i++){
-            System.out.print(res[i]+" ");
-        }
-
+        System.out.println(sb);
     }
 }
