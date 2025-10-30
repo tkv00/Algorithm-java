@@ -4,87 +4,86 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    public static class Node implements Comparable<Node> {
-        int node;
-        int cost;
+    private static class Node{
+        int index;
+        int dis;
 
-        Node(int node, int cost) {
-            this.node = node;
-            this.cost = cost;
+        Node(int index,int dis){
+            this.index=index;
+            this.dis=dis;
+        }
+    }
+    private static int N,M;
+    private static BufferedReader br;
+    private static StringTokenizer st;
+    private static List<Node>[] map;
+    private static int[] dist;
+    private static PriorityQueue<Node> pq=new PriorityQueue<>((a,b)->a.dis-b.dis);
+    private static int cityStart;
+    private static int cityEnd;
+    private static final int INF=1_000_000_000;
+
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
+        N=Integer.parseInt(br.readLine());
+        M=Integer.parseInt(br.readLine());
+
+        map=new List[N+1];
+        dist=new int[N+1];
+
+        for (int i=1;i<=N;i++){
+            map[i]=new ArrayList<>();
         }
 
-        @Override
-        public int compareTo(Node o) {
-            return Integer.compare(this.cost, o.cost);
+        Arrays.fill(dist,INF);
+
+        for (int i=0;i<M;i++){
+            st=new StringTokenizer(br.readLine());
+            int start=Integer.parseInt(st.nextToken());
+            int end=Integer.parseInt(st.nextToken());
+            int cost=Integer.parseInt(st.nextToken());
+
+            map[start].add(new Node(end,cost));
+
+        }
+        // printMap();
+
+        st=new StringTokenizer(br.readLine());
+
+        cityStart=Integer.parseInt(st.nextToken());
+        cityEnd=Integer.parseInt(st.nextToken());
+
+        dist[cityStart]=0;
+        pq.offer(new Node(cityStart,0));
+    }
+
+    private static void Dijkstra(){
+        boolean[] visited=new boolean[N+1];
+
+
+        while (!pq.isEmpty()){
+            Node now=pq.poll();
+            List<Node> nextList=map[now.index];
+            if (visited[now.index]) continue;
+
+            visited[now.index]=true;
+
+            for (Node next:nextList){
+                if (!visited[next.index] &&
+                    next.dis+dist[now.index]<dist[next.index]){
+
+                    dist[next.index]=dist[now.index]+next.dis;
+                    pq.offer(new Node(next.index,dist[next.index]));
+                }
+            }
         }
     }
 
-    public static int N;
-    public static int M;
-
-    public static boolean[] visited;
-    public static int[] costArr;
-    public static ArrayList<Node>[] arr;
-    public static int start;
-    public static int end;
-    public static StringTokenizer st;
-    public static int INF;
-
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-
-        N = Integer.parseInt(br.readLine());
-        M = Integer.parseInt(br.readLine());
-        INF = Integer.MAX_VALUE;
-
-        arr = new ArrayList[N + 1];
-        for (int i = 0; i <= N; i++) {
-            arr[i] = new ArrayList<>();
-        }
-
-        visited = new boolean[N + 1];
-        costArr = new int[N + 1];
-        Arrays.fill(costArr, INF);
-
-
-        for (int i = 0; i < M; i++) {
-            st = new StringTokenizer(br.readLine());
-            int start = Integer.parseInt(st.nextToken());
-            int end = Integer.parseInt(st.nextToken());
-            int cost = Integer.parseInt(st.nextToken());
-
-            arr[start].add(new Node(end, cost));
-        }
-
-        st = new StringTokenizer(br.readLine());
-        start = Integer.parseInt(st.nextToken());
-        end = Integer.parseInt(st.nextToken());
-
-        PriorityQueue<Node> pQ = new PriorityQueue<>();
-        pQ.offer(new Node(start, 0));
-
-        costArr[start] = 0;
-        while (!pQ.isEmpty()) {
-            Node nowNode = pQ.poll();
-            if (visited[nowNode.node]) continue;
-            visited[nowNode.node] = true;
-
-            for (Node nextNode : arr[nowNode.node]) {
-                
-                if (costArr[nextNode.node] > costArr[nowNode.node] + nextNode.cost) {
-                    costArr[nextNode.node] = costArr[nowNode.node] + nextNode.cost;
-
-                    pQ.offer(new Node(nextNode.node, costArr[nextNode.node]));
-
-                }
-
-            }
-        }
-
-
-        System.out.println(costArr[end]);
-
+        init();
+        Dijkstra();
+        //printMap();
+        System.out.println(dist[cityEnd]);
     }
 }
