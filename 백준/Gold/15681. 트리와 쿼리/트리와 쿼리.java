@@ -1,55 +1,67 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
+
 public class Main {
-    private static int N;
-    private static int R;
-    private static int Q;
+    private static int N,R,Q;
+    private static BufferedReader br;
     private static StringTokenizer st;
+    private static List<Integer>[] graph;
+    private static int[] query;
     private static boolean[] visited;
-    private static int[] cnt;
-    private static HashMap<Integer,ArrayList<Integer>> map=new HashMap<>();
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    private static int[] subTreeCount;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
         st=new StringTokenizer(br.readLine());
+
         N=Integer.parseInt(st.nextToken());
         R=Integer.parseInt(st.nextToken());
         Q=Integer.parseInt(st.nextToken());
-
-        for(int i=0;i<N-1;i++){
-            st=new StringTokenizer(br.readLine());
-            int first=Integer.parseInt(st.nextToken());
-            int second=Integer.parseInt(st.nextToken());
-
-            map.putIfAbsent(first,new ArrayList<>());
-            map.putIfAbsent(second,new ArrayList<>());
-
-            map.get(first).add(second);
-            map.get(second).add(first);
-        }
-
-        cnt=new int[N+1];
+        graph=new List[N+1];
+        query=new int[Q];
         visited=new boolean[N+1];
-        StringBuilder sb=new StringBuilder();
-        DFS(R);
+        subTreeCount=new int[N+1];//서브 트리 개수
 
-        for(int i=0;i<Q;i++){
-            int q=Integer.parseInt(br.readLine());
-            sb.append(cnt[q]).append("\n");
+        for (int i=1;i<=N;i++){
+            graph[i]=new ArrayList<>();
         }
 
-        System.out.print(sb);
+        for (int i=0;i<N-1;i++){
+            st=new StringTokenizer(br.readLine());
+            int n1=Integer.parseInt(st.nextToken());
+            int n2=Integer.parseInt(st.nextToken());
+
+            graph[n1].add(n2);
+            graph[n2].add(n1);
+        }
+
+        for (int i=0;i<Q;i++){
+            int num=Integer.parseInt(br.readLine());
+            query[i]=num;
+        }
+
     }
 
-    private static int DFS(int now){
-        cnt[now]=1;
-        visited[now]=true;
+    private static int DFS(int root){
+        visited[root]=true;
+        int cnt=1;
 
-        ArrayList<Integer> list=map.get(now);
-        for(int i:list){
-            if(!visited[i]){
-                cnt[now]+=DFS(i);
-            }
+        for (int next:graph[root]){
+            if (visited[next]) continue;
+            cnt+=DFS(next);
         }
-        return cnt[now];
+
+        return subTreeCount[root]=cnt;
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        DFS(R);
+        //System.out.println(Arrays.toString(subTreeCount));
+
+        for (int q:query){
+            System.out.println(subTreeCount[q]);
+        }
     }
 }
