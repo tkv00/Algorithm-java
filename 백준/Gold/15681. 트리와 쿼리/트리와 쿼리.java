@@ -48,6 +48,7 @@ public class Main {
         int cnt=1;
 
         for (int next:graph[root]){
+            if (subTreeCount[next]>0) continue;
             if (visited[next]) continue;
             cnt+=DFS(next);
         }
