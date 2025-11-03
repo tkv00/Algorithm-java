@@ -4,65 +4,70 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    private static BufferedReader br;
     private static StringTokenizer st;
-    private static int N,K;
-    //보석
-    private static PriorityQueue<Integer> pq;
-    //가방
+    private static BufferedReader br;
+    private static int N, K;
     private static int[] bags;
-    //무게 - 가격
+    private static List<Stone> list;
+    private static long result=0;
 
-    private static int[][] infos;
-    private static long result;
+    private static class Stone {
+        int weight;
+        int value;
 
-    private static void init() throws IOException {
-        result=0;
-        br=new BufferedReader(new InputStreamReader(System.in));
-        st=new StringTokenizer(br.readLine());
-
-        N=Integer.parseInt(st.nextToken());
-        K=Integer.parseInt(st.nextToken());
-
-
-        bags=new int[K];
-        infos=new int[N][2];
-
-        for (int i=0;i<N;i++){
-            st=new StringTokenizer(br.readLine());
-            //무게
-            int weight=Integer.parseInt(st.nextToken());
-            //가격
-            int cost=Integer.parseInt(st.nextToken());
-            infos[i]=new int[]{weight,cost};
+        Stone(int weight, int value) {
+            this.value = value;
+            this.weight = weight;
         }
-
-        for (int i=0;i<K;i++){
-            int num=Integer.parseInt(br.readLine());
-            bags[i]=num;
-        }
-        Arrays.sort(bags);
-        Arrays.sort(infos,(a,b)->a[0]-b[0]);
     }
 
-    private static void operation(){
-        pq=new PriorityQueue<>((a,b)->b-a);
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        st = new StringTokenizer(br.readLine());
+
+        N = Integer.parseInt(st.nextToken());
+        K = Integer.parseInt(st.nextToken());
+
+        bags = new int[K];
+        list=new ArrayList<>();
+
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            int weight = Integer.parseInt(st.nextToken());
+            int value = Integer.parseInt(st.nextToken());
+
+            list.add(new Stone(weight,value));
+        }
+
+        list.sort((a,b)->a.weight-b.weight);
+
+        for (int i = 0; i < K; i++) {
+            bags[i] = Integer.parseInt(br.readLine());
+        }
+
+        Arrays.sort(bags);
+    }
+
+    private static void operation() {
+        PriorityQueue<Integer> pq=new PriorityQueue<>((a,b)->b.compareTo(a));
         int idx=0;
 
-        for (int bag:bags){
-            while (idx<N && bag>=infos[idx][0]){
-                pq.offer(infos[idx][1]);
+        for (int bag : bags) {
+            while (idx<N && bag>=list.get(idx).weight){
+                pq.offer(list.get(idx).value);
                 idx++;
             }
 
-            if(!pq.isEmpty()){
-                result+=pq.poll();
-            }
+            if (!pq.isEmpty()) result+=pq.poll();
         }
+
     }
+
     public static void main(String[] args) throws IOException {
         init();
         operation();
+
         System.out.println(result);
     }
 }
