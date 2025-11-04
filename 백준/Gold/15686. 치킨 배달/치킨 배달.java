@@ -1,87 +1,82 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-    public static int N;
-    public static int M;
-    public static StringTokenizer st;
-    static ArrayList<Point> chicken;
-    static ArrayList<Point> city;
-    static int res = Integer.MAX_VALUE;
-    static boolean[] visited;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int N,M;
+    private static int[][] map;
+    private static boolean[] selected;
+    private static List<int[]> chickens;
+    private static List<int[]> homes;
 
-    public static class Point {
-        int x;
-        int y;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
+        st=new StringTokenizer(br.readLine());
 
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
+        N=Integer.parseInt(st.nextToken());
+        M=Integer.parseInt(st.nextToken());
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        city = new ArrayList<>();
-        chicken = new ArrayList<>();
+        map=new int[N][N];
+        chickens=new ArrayList<>();
+        homes=new ArrayList<>();
 
+        for (int i=0;i<N;i++){
+            st=new StringTokenizer(br.readLine());
+            for (int j=0;j<N;j++){
+                //0 : 빈 칸 / 1 : 집 / 2 : 치킨집
+                map[i][j]=Integer.parseInt(st.nextToken());
 
-        for (int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < N; j++) {
-                int t = Integer.parseInt(st.nextToken());
-                //치킨인 경우
-                if (t == 2) {
-                    chicken.add(new Point(i, j));
-                }
-                //집인 경우
-                if (t == 1) {
-                    city.add(new Point(i, j));
-                }
+                if (map[i][j]==2) chickens.add(new int[]{i,j});
+                if (map[i][j]==1) homes.add(new int[]{i,j});
             }
         }
-        visited=new boolean[chicken.size()];
-        dfs(0,0);
-        System.out.println(res);
-
+        selected=new boolean[chickens.size()];
     }
 
-    //거리 재기
-    static int distance(int x1, int y1, int x2, int y2) {
-        return Math.abs(x1 - x2) + Math.abs(y1 - y2);
-    }
+    //select : 선택된 치킨집 수
+    private static void combination(int select,int count){
+        if (count==M){
+            int dis=calculateDistance();
 
-    static void dfs(int depth, int start) {
-        if (depth == M) {
-            int sum = 0;
-            for (int i = 0; i < city.size(); i++) {
-                int max = Integer.MAX_VALUE;
-                for (int j = 0; j < chicken.size(); j++) {
-                    if (visited[j]) {
-                        int k = distance(city.get(i).x, city.get(i).y, chicken.get(j).x, chicken.get(j).y);
-                        max = Math.min(max, k);
-                    }
-                }
-                sum += max;
-            }
-            res=Math.min(sum,res);
+            distanceSum=Math.min(dis,distanceSum);
             return;
         }
 
-        //치킨 집 방문
-        for (int i = start; i < chicken.size(); i++) {
-            visited[i] = true;
-            dfs(depth + 1, i+1);
-            visited[i] = false;
-        }
+        if (select>=chickens.size()) return;
+
+        selected[select]=true;
+        combination(select+1,count+1);
+        selected[select]=false;
+
+        combination(select+1,count);
     }
 
+    private static int distanceSum=Integer.MAX_VALUE;
+    //거리 측정
+    private static int calculateDistance(){
+        int disSum=0;
+
+        for (int i=0;i<homes.size();i++){
+            int[] home=homes.get(i);
+            int minDis=Integer.MAX_VALUE;
+
+            for (int j=0;j<chickens.size();j++){
+                if (!selected[j]) continue;
+                int[] chicken=chickens.get(j);
+                int dis=Math.abs(chicken[0]-home[0])+Math.abs(chicken[1]-home[1]);
+                minDis=Math.min(dis,minDis);
+            }
+            disSum+=minDis;
+        }
+        return disSum;
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        combination(0,0);
+        System.out.println(distanceSum);
+    }
 }
