@@ -1,35 +1,41 @@
 class Solution {
-    private static int answer=0;
-    private static boolean[] visited;
-    private static int size=0;
+    private static int result=0;
     
-    private static void dfs(int dep,String word,String target,String[] words){
-        if(word.equals(target)){
-            answer=dep;
+    private static void operation(String[] words,String now,String end,int cnt,boolean[] visited){
+        if(now.equals(end)){
+            result=cnt;
             return;
         }
-        for(int i=0;i<size;i++){
-            if(!visited[i]){
-                String str=words[i];
-                char[] ch=str.toCharArray();
-                //word char배열
-                char[] ch2=word.toCharArray();
-                int k=0;
-                for(int j=0;j<ch.length;j++){
-                    if(ch[j]!=ch2[j]) k++;
-                }
-                if(k==1){
-                    visited[i]=true;
-                    dfs(dep+1,str,target,words);
-                    visited[i]=false;
-                }
-            }
+        
+        for(int idx=0;idx<words.length;idx++){
+            if(visited[idx]) continue;
+            if(!canConvert(now,words[idx])) continue;
+            
+            visited[idx]=true;
+            operation(words,words[idx],end,cnt+1,visited);
+            visited[idx]=false;
         }
     }
+    
+    private static boolean canConvert(String start,String end){
+        int len=start.length();
+        
+        char[] startArr=start.toCharArray();
+        char[] endArr=end.toCharArray();
+        
+        int cnt=0;
+        
+        for(int i=0;i<len;i++){
+            if(startArr[i]==endArr[i]) cnt++;
+        }
+        
+        return cnt == len -1 ;
+    }
+    
     public int solution(String begin, String target, String[] words) {
-        size=words.length;
-        visited=new boolean[size];
-        dfs(0,begin,target,words);
-        return answer;
+        boolean[] visited=new boolean[words.length];
+        operation(words,begin,target,0,visited);
+        
+        return result;
     }
 }
