@@ -1,20 +1,25 @@
+import java.util.*;
+
 class Solution {
+    private static int[][] dp;
+    private static int MAX=Integer.MIN_VALUE;
+    
     public int solution(int[][] triangle) {
         int size=triangle.length;
-        int maxValue=Integer.MIN_VALUE;
+        dp=new int[size][size];
+        dp[0][0]=triangle[0][0];
         
-        for(int i=1;i<size;i++){
-            triangle[i][0]+=triangle[i-1][0];
-            triangle[i][triangle[i].length-1]+=triangle[i-1][triangle[i-1].length-1];
-            //중간 값
-            for(int j=1;j<triangle[i].length-1;j++){
-                triangle[i][j]+=Math.max(triangle[i-1][j],triangle[i-1][j-1]);
+        for(int row=1;row<size;row++){
+            for(int col=0;col<=row;col++){
+                dp[row][col]=Math.max(dp[row-1][col],dp[row-1][col > 0 ? col-1 : 0 ])+triangle[row][col];
             }
         }
-        for(int i=0;i<triangle[size-1].length;i++){
-            maxValue=Math.max(maxValue,triangle[size-1][i]);
+        
+        for(int i=0;i<size;i++){
+            MAX=Math.max(MAX,dp[size-1][i]);
         }
-        return maxValue;
+        
+        return MAX;
         
     }
 }
