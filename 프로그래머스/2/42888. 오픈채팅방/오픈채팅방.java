@@ -2,40 +2,60 @@ import java.util.*;
 class Solution {
     private static final String IN="님이 들어왔습니다.";
     private static final String OUT="님이 나갔습니다.";
-    private static List<String> result;
-    private static Map<String,String> user;
+    private static Map<String,String> records;
+    private static List<String> results;
+    private static String[] result;
+    
     public String[] solution(String[] record) {
-        result=new ArrayList<>();
-        user=new HashMap<>();
+        records=new HashMap<>();
+        results=new ArrayList<>();
+        
         
         for(String input:record){
-            String order=input.split(" ")[0];
-            if(order.equals("Enter") || order.equals("Change")){
-                String uid=input.split(" ")[1];
-                String name=input.split(" ")[2];
-                user.put(uid,name);    
+            String [] inputs=input.split(" ");
+            String order=inputs[0];
+            String key=inputs[1];
+            String name="";
+            if(!order.equals("Leave")){
+                name=inputs[2];
+            }
+           
+            switch(order){
+                case "Change":
+                case "Enter":
+                    records.put(key,name);
+                    break;      
             }
         }
         
         for(String input:record){
-            String order=input.split(" ")[0];
-            String uid=input.split(" ")[1];
+            String [] inputs=input.split(" ");
+            String order=inputs[0];
+            String key=inputs[1];
+            String name="";
+            if(!order.equals("Leave")){
+                name=inputs[2];
+            }
+           
             
             switch(order){
                 case "Enter":
-                    result.add(user.get(uid)+IN);
+                    results.add(records.get(key)+IN);
                     break;
                 case "Leave":
-                    result.add(user.get(uid)+OUT);
+                    results.add(records.get(key)+OUT);
                     break;
             }
         }
         
-        String[] answer=new String[result.size()];
-        for(int i=0;i<result.size();i++){
-            answer[i]=result.get(i);
-        }
-        return answer;
+        result=new String[results.size()];
+        int idx=0;
         
+        for(String str:results){
+            result[idx]=str;
+            idx++;
+        }
+        
+        return result;
     }
 }
