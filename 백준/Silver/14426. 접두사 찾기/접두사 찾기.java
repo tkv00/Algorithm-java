@@ -9,29 +9,35 @@ public class Main {
     private static int N,M;
     private static StringTokenizer st;
     private static BufferedReader br;
-    private static int cnt=0;
-    private static Trie trie;
-    private static class Node{
-        Map<Character,Node> child=new HashMap<>();
-    }
-    private static class Trie{
-        Node root=new Node();
+    private static int result=0;
+    private static TrieTree trieTree;
 
-        void insert(String input){
-            Node node=root;
+    private static class TrieTree{
+        Map<Character,TrieTree> childNode=new HashMap<>();
+        boolean terminate;
 
-            for (int i=0;i<input.length();i++){
-                node.child.putIfAbsent(input.charAt(i),new Node());
-                node=node.child.get(input.charAt(i));
+        public void insert(String input){
+            TrieTree trieTree=this;
+            for (int w=0;w<input.length();w++){
+                char c=input.charAt(w);
+
+                trieTree.childNode.putIfAbsent(c,new TrieTree());
+                trieTree=trieTree.childNode.get(c);
+                trieTree.terminate=true;
             }
         }
 
-        boolean search(String input){
-            Node cur=this.root;
+        public boolean find(String input){
+            TrieTree trieTree=this;
 
-            for (int i=0;i<input.length();i++){
-                cur=cur.child.getOrDefault(input.charAt(i),null);
-                if (cur==null) return false;
+            for (int w=0;w<input.length();w++){
+                char c=input.charAt(w);
+                TrieTree node=trieTree.childNode.get(c);
+
+                if(node==null) return false;
+                if(!node.terminate) return false;
+
+                trieTree=node;
             }
             return true;
         }
@@ -43,23 +49,21 @@ public class Main {
         N=Integer.parseInt(st.nextToken());
         M=Integer.parseInt(st.nextToken());
 
-        trie=new Trie();
+        trieTree=new TrieTree();
 
         for (int i=0;i<N;i++){
-            trie.insert(br.readLine());
-        }
-
-    }
-
-    private static void operation() throws IOException {
-        for (int i=0;i<M;i++){
             String input=br.readLine();
-            if (trie.search(input)) cnt++;
+            trieTree.insert(input);
         }
-        System.out.println(cnt);
     }
+
     public static void main(String[] args) throws IOException {
         init();
-        operation();
+
+        for (int i=0;i<M;i++){
+            if (trieTree.find(br.readLine())) result++;
+        }
+
+        System.out.println(result);
     }
 }
