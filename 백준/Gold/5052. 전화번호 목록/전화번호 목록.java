@@ -1,73 +1,69 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Main {
-    private static int T,N;
+    private static int T;
+    private static StringTokenizer st;
     private static BufferedReader br;
     private static StringBuilder sb;
-    private static class Node{
-        Map<Character,Node> childNodes=new HashMap<>();
-        //단어의 끝 여부
-        boolean endOfWord;
+    private static List<String> inputs;
+
+    private static class Trie {
+        boolean terminate = false;
+        Map<Integer, Trie> childNode = new HashMap<>();
+
+        boolean insert(String input) {
+            Trie root = this;
+
+            for (int w = 0; w < input.length(); w++) {
+                int value = input.charAt(w) - '0';
+
+                root.childNode.putIfAbsent(value, new Trie());
+                root = root.childNode.get(value);
+
+                if (root.terminate) return false;
+
+                if (input.length() - 1 == w) {
+                    root.terminate = true;
+                }
+            }
+            return true;
+        }
+
     }
 
-    private static class Trie{
-        Node root=new Node();
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        T = Integer.parseInt(br.readLine());
+        sb = new StringBuilder();
 
-        void insert(String str){
-            Node node=this.root;
+        for (int t = 0; t < T; t++) {
+            int N = Integer.parseInt(br.readLine());
+            inputs = new ArrayList<>();
 
-            for (int i=0;i<str.length();i++){
-                node.childNodes.putIfAbsent(str.charAt(i),new Node());
-                node=node.childNodes.get(str.charAt(i));
+            for (int i = 0; i < N; i++) {
+                inputs.add(br.readLine());
             }
 
-            node.endOfWord=true;
-        }
+            Collections.sort(inputs, (a, b) -> a.length() - b.length());
+            Trie trie = new Trie();
+            boolean flag = true;
 
-        boolean search(String str){
-            Node node=this.root;
-
-            for (int i=0;i<str.length();i++){
-                if(node.endOfWord) return false;
-                node=node.childNodes.getOrDefault(str.charAt(i),null);
-
-                if (node==null) return false;
+            for (String input : inputs) {
+                if (!trie.insert(input)) flag = false;
             }
-            return node.endOfWord;
+
+            if (!flag) sb.append("NO").append("\n");
+            else sb.append("YES").append("\n");
         }
+
+
     }
 
     public static void main(String[] args) throws IOException {
-        br=new BufferedReader(new InputStreamReader(System.in));
-        sb=new StringBuilder();
-
-        T=Integer.parseInt(br.readLine());
-
-        for (int i=0;i<T;i++){
-            N=Integer.parseInt(br.readLine());
-            Trie trie=new Trie();
-            String[] inputs=new String[N];
-
-            for (int j=0;j<N;j++){
-                String input=br.readLine();
-                inputs[j]=input;
-                trie.insert(input);
-            }
-
-            boolean flag=true;
-            for (String input:inputs){
-                if (!trie.search(input)) flag=false;
-
-            }
-
-            if (flag) sb.append("YES").append("\n");
-            else sb.append("NO").append("\n");
-        }
-
+        init();
         System.out.println(sb);
     }
 }
