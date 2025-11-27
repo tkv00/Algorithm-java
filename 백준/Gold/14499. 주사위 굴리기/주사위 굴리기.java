@@ -1,137 +1,134 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
-    public static class Move {
-        int x;
-        int y;
+    private static int N, M, K;
+    private static int x, y;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[][] map;
+    private static int[] dr = new int[]{0, 0, -1, 1}; //동서 북남
+    private static int[] dc = new int[]{1, -1, 0, 0}; //동서북남
 
-        Move(int x, int y) {
-            this.x = x;
-            this.y = y;
+    private static int[] dice = new int[]{0, 0, 0, 0, 0, 0};
+    private static int[] orders;
+    private static StringBuilder sb;
+
+    private static void swap(int idx1, int idx2) {
+        int tmp = dice[idx1];
+        dice[idx1] = dice[idx2];
+        dice[idx2] = tmp;
+    }
+
+    //동쪽 이동
+    private static void moveEast() {
+        swap(1, 2);
+        swap(2, 3);
+        swap(3, 5);
+    }
+
+    //서쪽 이동
+    private static void moveWest() {
+        swap(1, 2);
+        swap(1, 3);
+        swap(1, 5);
+    }
+
+    //남쪽 이동
+    private static void moveSouth() {
+        swap(0, 2);
+        swap(2, 4);
+        swap(4, 5);
+    }
+
+    //북쪽 이동
+    private static void moveNorth() {
+        swap(0, 5);
+        swap(2, 4);
+        swap(2, 5);
+    }
+
+    //상단 인덱스 = 2
+    private static void saveTop() {
+        sb.append(dice[5]).append("\n");
+    }
+
+    private static boolean isValid(int row, int col) {
+        return row >= 0 && row < N && col >= 0 && col < M;
+    }
+
+    private static void simulation() {
+        for (int order : orders) {
+            int nr = x + dr[order];
+            int nc = y + dc[order];
+
+            if (!isValid(nr, nc)) continue;
+
+            //이동
+            switch (order) {
+                case 0:
+                    moveEast();
+                    break;
+                case 1:
+                    moveWest();
+                    break;
+                case 2:
+                    moveNorth();
+                    break;
+                case 3:
+                    moveSouth();
+                    break;
+            }
+
+            if (map[nr][nc]==0){
+                map[nr][nc]=dice[2];
+            }else{
+                dice[2]=map[nr][nc];
+                map[nr][nc]=0;
+            }
+
+            saveTop();
+
+            x = nr;
+            y = nc;
         }
     }
 
-    public static int width;
-    public static int height;
-    public static int x;
-    public static int y;
-    public static int orderNum;
-    public static ArrayList<Move> move;
-    public static StringTokenizer st;
-    public static int[][] map;
-    public static int[] dice;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer(br.readLine());
-        height = Integer.parseInt(st.nextToken());
-        width = Integer.parseInt(st.nextToken());
+        sb = new StringBuilder();
+
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
         x = Integer.parseInt(st.nextToken());
         y = Integer.parseInt(st.nextToken());
-        orderNum = Integer.parseInt(st.nextToken());
-        map = new int[height][width];
+        K = Integer.parseInt(st.nextToken());
 
-        //주사위 순서 맨위,앞,맨아래,뒤,왼쪽,오른쪽
-        dice = new int[6];
+        map = new int[N][M];
+        orders = new int[K];
 
-        //이동정보 저장
-        move = new ArrayList<>();
-        move.add(new Move(0, 1));//동쪽
-        move.add(new Move(0, -1));//서쪽
-        move.add(new Move(-1, 0));//북쪽
-        move.add(new Move(1, 0));//남쪽
-
-        //맵정보 입력받기
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            for (int j = 0; j < width; j++) {
+            for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
-        st = new StringTokenizer(br.readLine());
-        int nowX = x, nowY = y;
-        //명령정보 입력 및 결과 출력
-        for (int i = 0; i < orderNum; i++) {
-            int num = Integer.parseInt(st.nextToken());
 
-            //예외처리해야할듯
-            Move moving = move.get(num - 1);
-            int newX = nowX + moving.x;
-            int newY = nowY + moving.y;
+        st=new StringTokenizer(br.readLine());
 
-            // 맵 범위를 벗어나면 이동하지 않음
-            if (newX < 0 || newX >= height || newY < 0 || newY >= width) {
-                continue;
-            }
-            nowX = newX;
-            nowY = newY;
-            diceMove(num);
-
-            //이동한 칸에 쓰인 수가 0인경우
-            if (map[nowX][nowY] == 0) {
-                map[nowX][nowY] = dice[2]; //주사위 바닥면에 쓰인 수가 칸에 복사
-                //System.out.println(dice[0]);
-            } else {
-                dice[2] = map[nowX][nowY];
-                map[nowX][nowY] = 0;
-                //  System.out.println(dice[0]);
-            }
-
-            System.out.println(dice[0]);
-
-
-        }
-        // System.out.println(Arrays.toString(dice));
-
-
-    }
-
-    //주사위 움직이기 함수
-    public static void diceMove(int move) {
-        int first = dice[0];
-        int second = dice[1];
-        int third = dice[2];
-        int fourth = dice[3];
-        int fifth = dice[4];
-        int sixth = dice[5];
-
-        switch (move) {
-            case 1:
-                //동쪽
-                dice[0] = fifth;
-                dice[2] = sixth;
-                dice[4] = third;
-                dice[5] = first;
-                break;
-            //서쪽
-            case 2:
-                dice[0] = sixth;
-                dice[2] = fifth;
-                dice[4] = first;
-                dice[5] = third;
-                break;
-            //남쪽
-            case 3:
-                dice[0] = fourth;
-                dice[1] = first;
-                dice[2] = second;
-                dice[3] = third;
-                break;
-            //북쪽
-            case 4:
-                dice[0] = second;
-                dice[1] = third;
-                dice[2] = fourth;
-                dice[3] = first;
-                break;
-
+        for (int i = 0; i < K; i++) {
+            orders[i] = Integer.parseInt(st.nextToken()) - 1;
         }
     }
 
-    //
+
+    public static void main(String[] args) throws IOException {
+        init();
+        simulation();
+
+        System.out.println(sb);
+    }
 }
