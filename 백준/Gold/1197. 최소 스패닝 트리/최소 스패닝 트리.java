@@ -1,88 +1,74 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class Main {
-    public static int find(int x,int[] arr){
-        if(arr[x]==x)return x;
-        return arr[x]=find(arr[x],arr);
-    }
-    public static void union(int x,int y,int[] arr){
-        x=find(x,arr);
-        y=find(y,arr);
-        if(x<y){
-            arr[y]=x;
-        }else{
-            arr[x]=y;
-        }
-    }
-    //같은 부모인지 판단
-    public static int isSameParent(int a,int b,int[]arr){
-        a=find(a,arr);
-        b=find(b,arr);
-        if(a==b)return 1;
-        else return -1;
-    }
-    static class Node  {
-        int start;
-        int end;
-        int cost;
-        Node(int start,int end,int cost){
-            this.start=start;
-            this.end=end;
-            this.cost=cost;
+    private static int V, E;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static PriorityQueue<int[]> pq;
+    private static long result = 0L;
+    private static int[] parent;
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        st = new StringTokenizer(br.readLine());
+        pq = new PriorityQueue<>((a, b) -> a[2] - b[2]);
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
+        parent = new int[V + 1];
+
+        for (int i = 1; i <= V; i++) {
+            parent[i] = i;
         }
 
+        for (int i = 0; i < E; i++) {
+            st = new StringTokenizer(br.readLine());
+
+            int node1 = Integer.parseInt(st.nextToken());
+            int node2 = Integer.parseInt(st.nextToken());
+            int weight = Integer.parseInt(st.nextToken());
+
+            pq.offer(new int[]{node1, node2, weight});
+        }
     }
-    static PriorityQueue<Node> queue;
-    static int V;
-    static int E;
-    static StringTokenizer st;
-    static int[] unionFind;
-    static int res=0;
+
+    private static int find(int a) {
+        if (a == parent[a]) return a;
+
+        return parent[a]=find(parent[a]);
+    }
+
+    private static void union(int a, int b) {
+        a = find(a);
+        b = find(b);
+        if (a < b) parent[b] = a;
+        else parent[a] = b;
+    }
+
+    private static void operation() {
+        int cnt = 0;
+
+        while (!pq.isEmpty()) {
+            if (cnt == V - 1) break;
+
+            int[] info = pq.poll();
+            int parent1 = find(info[0]);
+            int parent2 = find(info[1]);
+
+            //사이클 판단
+            if (parent1 == parent2) continue;
+
+            result += info[2];
+            union(info[0], info[1]);
+            cnt++;
+        }
+    }
+
     public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-        st=new StringTokenizer(br.readLine());
+        init();
+        operation();
 
-        V=Integer.parseInt(st.nextToken());
-        E=Integer.parseInt(st.nextToken());
-        unionFind=new int[V+1];
-        //유니온 파인드 초기화
-        for(int i=1;i<=V;i++){
-            unionFind[i]=i;
-        }
-
-        queue=new PriorityQueue<>(new Comparator<Node>() {
-            @Override
-            public int compare(Node o1, Node o2) {
-               return o1.cost-o2.cost;
-            }
-        });
-        for(int i=0;i<E;i++){
-            st=new StringTokenizer(br.readLine());
-            int start=Integer.parseInt(st.nextToken());
-            int end=Integer.parseInt(st.nextToken());
-            int cost=Integer.parseInt(st.nextToken());
-
-            queue.add(new Node(start,end,cost));
-        }
-
-        while (!queue.isEmpty()){
-            Node node=queue.poll();
-            int start=node.start;
-            int end=node.end;
-            int cost=node.cost;
-
-            //부모가 다르면 union
-            if(find(start,unionFind)!=find(end,unionFind)){
-                union(start,end,unionFind);
-                res+=cost;
-            }
-        }
-        System.out.println(res);
-
+        System.out.println(result);
     }
 }
