@@ -4,73 +4,70 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    static class Node implements Comparable<Node> {
-        int start;
-        int end;
-        int cost;
-        Node(int start,int end,int cost){
-            this.cost=cost;
-            this.start=start;
-            this.end=end;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            return Integer.compare(this.cost,o.cost);
-        }
-    }
-    static void union(int a,int b,int[] arr){
-        a=find(a,arr);
-        b=find(b,arr);
-        if(a<b)arr[b]=a;
-        else arr[a]=b;
-    }
-    static int find(int a,int[] arr){
-        if(arr[a]==a)return a;
-        return arr[a]=find(arr[a],arr);
-    }
-    static PriorityQueue<Node> q;
-    static int n;
-    static int m;
-    static StringTokenizer st;
-
-    static int[] unionfind;
-    static int res=0;
-    static int max=0;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    private static int N,M;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[] arr;
+    private static PriorityQueue<int[]> pq;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
         st=new StringTokenizer(br.readLine());
-        n=Integer.parseInt(st.nextToken());
-        m=Integer.parseInt(st.nextToken());
-        q=new PriorityQueue<>();
+        pq=new PriorityQueue<>((a,b)->a[2]-b[2]);
 
-        unionfind=new int[n+1];
-        for(int i=1;i<=n;i++){
-            unionfind[i]=i;
-        }
+        N=Integer.parseInt(st.nextToken());
+        M=Integer.parseInt(st.nextToken());
 
-        for (int i=0;i<m;i++){
+        arr=new int[N+1];
+
+        for (int i=0;i<M;i++){
             st=new StringTokenizer(br.readLine());
-            int start=Integer.parseInt(st.nextToken());
-            int end=Integer.parseInt(st.nextToken());
+            int home1=Integer.parseInt(st.nextToken());
+            int home2=Integer.parseInt(st.nextToken());
             int cost=Integer.parseInt(st.nextToken());
 
-            q.add(new Node(start,end,cost));
-
+             pq.offer(new int[]{home1,home2,cost});
         }
 
-        while (!q.isEmpty()){
-            Node node=q.poll();
-            //같은 그룹이 아닐때만
-            if(find(node.start,unionfind)!=find(node.end,unionfind)){
-                //같은 그룹만들기
-                union(node.start,node.end,unionfind);
-                res+=node.cost;
-                max=Math.max(max,node.cost);
+
+        for (int i=1;i<=N;i++){
+            arr[i]=i;
+        }
+    }
+
+    private static int findParent(int a){
+        if(a==arr[a]) return a;
+        return arr[a]=findParent(arr[a]);
+    }
+
+    private static void union(int a,int b){
+        a=findParent(a);
+        b=findParent(b);
+        if (a<b) arr[b]=a;
+        else arr[a]=b;
+    }
+
+    private static int operation(){
+        int cost=0;
+        int maxCost=0;
+
+        while (!pq.isEmpty()){
+            int[] now=pq.poll();
+            int home1=now[0];
+            int home2=now[1];
+
+            //사이클 판단
+            if (findParent(home1)!=findParent(home2)){
+                cost+=now[2];
+                maxCost=Math.max(now[2],maxCost);
+                union(home1,home2);
             }
         }
-        System.out.println(res-max);
 
+        return cost-maxCost;
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        System.out.println(operation());
     }
 }
