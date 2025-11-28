@@ -4,98 +4,100 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    static class Point {
-        int row;
-        int col;
+    private static int N, M;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[] dr = new int[]{0, 0, 1, -1};
+    private static int[] dc = new int[]{1, -1, 0, 0};
+    private static boolean[][] lightMap;
+    private static List<int[]>[][] map;
+    private static boolean[][] visited;
 
-        Point(int row, int col) {
-            this.row = row;
-            this.col = col;
-        }
+    private static boolean isValid(int row, int col) {
+        return row > 0 && row <= N && col > 0 && col <= N;
     }
 
-    static Queue<Point> queue;
-    static int N;
-    static int M;
-    static boolean[][] map;
-    static boolean[][] visited;
-    static ArrayList<Point>[][] pointMap;
+    private static int count() {
+        int cnt = 0;
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= N; j++) {
+                if (lightMap[i][j]) cnt++;
+            }
+        }
+        return cnt;
+    }
 
-    static StringTokenizer st;
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
-    static int res = 0;
-    static boolean flag=false;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
         st = new StringTokenizer(br.readLine());
 
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-        map = new boolean[N + 1][N + 1];
-        //visited = new boolean[N + 1][N + 1];
 
+        map = new List[N+1][N+1];
+        lightMap = new boolean[N + 1][N + 1];
+        visited = new boolean[N + 1][N + 1];
 
-        map[1][1] = true;
-        //visited[1][1]=true;
-        res++;
-        //queue.add(new Point(1,1));
-        pointMap = new ArrayList[N + 1][N + 1];
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
-                pointMap[i][j] = new ArrayList<>();
+        for (int i=1;i<=N;i++){
+            for (int j=1;j<=N;j++){
+                map[i][j]=new ArrayList<>();
             }
         }
+
         for (int i = 0; i < M; i++) {
             st = new StringTokenizer(br.readLine());
+
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
             int a = Integer.parseInt(st.nextToken());
             int b = Integer.parseInt(st.nextToken());
-            int c = Integer.parseInt(st.nextToken());
-            int d = Integer.parseInt(st.nextToken());
 
-            pointMap[a][b].add(new Point(c, d));
+            map[x][y].add(new int[]{a,b});
         }
-        bfs(1,1);
-        System.out.println(res+1);
-
 
     }
 
-    static int bfs(int x,int y) {
-        queue = new LinkedList<>();
-        queue.add(new Point(x,y));
-        visited=new boolean[N+1][N+1];
-        visited[x][y]=true;
-        flag=false;
-        res=0;
-        while (!queue.isEmpty()){
+    private static void operation() {
+        Queue<int[]> q = new LinkedList<>();
+        q.offer(new int[]{1,1});
+        lightMap[1][1] = true;
+        visited[1][1] = true;
 
-            Point point=queue.poll();
+        while (!q.isEmpty()) {
+            int[] now = q.poll();
+
             //불켜기
-            for(Point newPoint:pointMap[point.row][point.col]){
+            for (int[] next:map[now[0]][now[1]]){
+                if (!lightMap[next[0]][next[1]]){
+                    lightMap[next[0]][next[1]]=true;
 
-                //불이 꺼진상태이면
-                if(!map[newPoint.row][newPoint.col]){
-                    //불켜기
-                    map[newPoint.row][newPoint.col]=true;
-                    res++;
-                    flag=true;
+                    for (int d=0;d<4;d++){
+                        int nr=next[0]+dr[d];
+                        int nc=next[1]+dc[d];
+
+                        if (isValid(nr,nc) && visited[nr][nc]){
+                            q.offer(new int[]{nr,nc});
+                            break;
+                        }
+                    }
                 }
-
             }
-            for(int i=0;i<4;i++){
-                int newRow=point.row+dx[i];
-                int newCol=point.col+dy[i];
-                if((newRow>0 && newRow<=N)&&(newCol>0&&newCol<=N)&&map[newRow][newCol]&&!visited[newRow][newCol]){
-                    queue.add(new Point(newRow,newCol));
-                    visited[newRow][newCol]=true;
+
+            for (int d = 0; d < 4; d++) {
+                int nr = now[0] + dr[d];
+                int nc = now[1] + dc[d];
+
+                if (isValid(nr, nc) &&lightMap[nr][nc] &&!visited[nr][nc]) {
+                    q.offer(new int[]{nr,nc});
+                    visited[nr][nc]=true;
                 }
             }
         }
-        if(flag){
-           res+= bfs(1,1);
-        }
-        return res;
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        operation();
+        System.out.println(count());
     }
 }
