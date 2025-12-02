@@ -1,60 +1,75 @@
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
+
 public class Main {
     private static int N,M;
     private static StringTokenizer st;
+    private static BufferedReader br;
+    private static Queue<Integer> q;
+    private static Map<Integer, List<Integer>> graph;
     private static int[] indegree;
-    private static Queue<Integer> q=new LinkedList<>();
-    private static HashMap<Integer,ArrayList<Integer>> map=new HashMap<>();
-    public static void main(String[] args) throws IOException{
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    private static StringBuilder sb;
+    private static int count=0;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
         st=new StringTokenizer(br.readLine());
+        q=new LinkedList<>();
+        sb=new StringBuilder();
+
         N=Integer.parseInt(st.nextToken());
         M=Integer.parseInt(st.nextToken());
-        StringBuilder sb=new StringBuilder();
-        indegree=new int[N+1];
-        for(int i=1;i<=N;i++){
-            map.put(i,new ArrayList<>());
-        }
-        for(int i=0;i<M;i++){
-            String str=br.readLine();
-            String[] arr=str.split(" ");
-            int size=Integer.parseInt(arr[0]);
-            int[] intArr=new int[size];
-            for(int j=0;j<size;j++){
-                intArr[j]=Integer.parseInt(arr[j+1]);
-            }
-            for(int j=0;j<size-1;j++){
-                map.get(intArr[j]).add(intArr[j+1]);
-                indegree[intArr[j+1]]+=1;
-            }
-        }
-        int count=0;
 
-        for(int i=1;i<=N;i++){
-            if(indegree[i]==0){
-                q.offer(i);
+        indegree=new int[N+1];
+        graph=new HashMap<>();
+
+
+        for (int i=0;i<M;i++){
+            st=new StringTokenizer(br.readLine());
+            int num=Integer.parseInt(st.nextToken());
+            int[] inputs=new int[num];
+
+            for (int j=0;j<num;j++){
+                inputs[j]=Integer.parseInt(st.nextToken());
+                if (j>0){
+                    indegree[inputs[j]]++;
+                }
             }
+
+            for (int j=0;j<num-1;j++){
+                graph.putIfAbsent(inputs[j],new ArrayList<>());
+                graph.get(inputs[j]).add(inputs[j+1]);
+            }
+        }
+    }
+
+    private static void operation(){
+        for (int i=1;i<=N;i++){
+            if (indegree[i]==0) q.offer(i);
         }
 
         while(!q.isEmpty()){
             int now=q.poll();
-            sb.append(now).append("\n");
             count++;
-            ArrayList<Integer> nowArr=map.get(now);
-            for(int x:nowArr){
-                indegree[x]--;
-                if(indegree[x]==0){
-                    q.offer(x);
-                    //sb.append(x).append("\n");
-                }
+            sb.append(now).append("\n");
+
+            if (!graph.containsKey(now)) continue;
+            for (int next:graph.get(now)){
+                indegree[next]--;
+                if (indegree[next]==0) q.offer(next);
             }
         }
-        if(count!=N){
-            System.out.print(0);
-            return;
-        }
-        System.out.print(sb);
 
+    }
+    public static void main(String[] args) throws IOException {
+        init();
+        operation();
+        if (count!=N){
+            System.out.println(0);
+            System.exit(0);
+        }
+        System.out.println(sb);
     }
 }
