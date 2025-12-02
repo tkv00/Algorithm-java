@@ -1,65 +1,63 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
-    static int T;
-    static int res = 0;
-    static int[] graph;
-    static boolean[] visited;
-    static boolean[] done;
-    static StringTokenizer st;
+    private static int T;
+    private static int n;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[] input;
+    private static int cnt;
+    private static boolean[] visited;
+    private static boolean[] done;
+    private static StringBuilder sb;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
+        T=Integer.parseInt(br.readLine());
+        sb=new StringBuilder();
 
+        for (int t=0;t<T;t++){
+            int N=Integer.parseInt(br.readLine());
+            input=new int[N+1];
+            cnt=0;
+            st=new StringTokenizer(br.readLine());
 
+            done=new boolean[N+1];
+            visited=new boolean[N+1];
+
+            for (int j=1;j<=N;j++){
+                input[j]=Integer.parseInt(st.nextToken());
+            }
+
+            for (int j=1;j<=N;j++){
+                operation(j);
+            }
+
+            sb.append(N-cnt).append("\n");
+        }
+    }
+
+    private static void operation(int node){
+        visited[node]=true;
+        int next=input[node];
+
+        if (!visited[next]){
+            operation(next);
+        }
+
+        else if (!done[next]){
+            for (int i=next;i!=node;i=input[i]){
+                cnt++;
+            }
+            cnt++;
+        }
+
+        done[node]=true;
+    }
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        T = Integer.parseInt(br.readLine());
-        for (int i = 0; i < T; i++) {
-            int num = Integer.parseInt(br.readLine());
-            visited = new boolean[num + 1];
-            done = new boolean[num + 1];
-            graph = new int[num + 1];
-            res = 0;
-            st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= num; j++) {
-                int n = Integer.parseInt(st.nextToken());
-                //if(n==j) done[n]=true;
-                graph[j] = n;
-
-
-            }
-            for (int j = 1; j <= num; j++) {
-                if (!done[j]) {
-                    result(j);
-                }
-            }
-            System.out.println(num - res);
-
-        }
-
-
+        init();
+        System.out.println(sb);
     }
-
-    static void result(int node) {
-        if (visited[node]) {
-            res++;
-            done[node] = true;
-
-        }
-        visited[node] = true;
-
-
-        if (!done[graph[node]]) {
-            result(graph[node]);
-        }
-        visited[node] = false;
-        done[node] = true;
-
-    }
-
-
 }
