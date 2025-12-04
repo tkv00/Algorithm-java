@@ -1,54 +1,71 @@
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
 
 public class Main {
-    public static int n;
-    public static int m;
-    public static int[] score;
-    public static ArrayList<Integer>[] graph;
-    public static StringTokenizer st;
-    //public static boolean []visited;
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    private static int[]weights;
+    private static Map<Integer, List<Integer>>graph;
+    private static int n,m;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static StringBuilder sb;
+    private static int[] result;
+    private static void init() throws IOException {
+        br=new BufferedReader(new InputStreamReader(System.in));
         st=new StringTokenizer(br.readLine());
+        sb=new StringBuilder();
+
         n=Integer.parseInt(st.nextToken());
         m=Integer.parseInt(st.nextToken());
 
+        weights=new int[n+1];
+        result=new int[n+1];
+        graph=new HashMap<>();
 
-        score=new int[n+1];
-        graph=new ArrayList[n+1];
-
-        for(int i=0;i<=n;i++){
-            graph[i]=new ArrayList<>();
-        }
         st=new StringTokenizer(br.readLine());
-        st.nextToken();
-        for(int i=2;i<=n;i++){
-            int v=Integer.parseInt(st.nextToken());
-            graph[v].add(i);
+
+        for (int i=1;i<=n;i++){
+            int num=Integer.parseInt(st.nextToken());
+
+            //사장인 경우
+            if (num==-1) continue;
+
+            graph.putIfAbsent(num,new ArrayList<>());
+            graph.get(num).add(i);
         }
-        for(int i=0;i<m;i++){
+
+        for (int i=0;i<m;i++){
             st=new StringTokenizer(br.readLine());
-            int idx=Integer.parseInt(st.nextToken());
-            int cost=Integer.parseInt(st.nextToken());
-            score[idx]+=cost;
-        }
-        dfs(1);
+            int employee=Integer.parseInt(st.nextToken());
+            int w=Integer.parseInt(st.nextToken());
 
-        StringBuilder sb=new StringBuilder();
-        for(int i=1;i<=n;i++){
-            sb.append(score[i]).append(" ");
+            weights[employee]+=w;
         }
-        System.out.println(sb);
     }
-    public static void dfs(int v){
 
+    private static void dfs(int node,int weight){
+        if (!graph.containsKey(node)) {
+            result[node]=weight;
+            return;
+        };
 
-        for(int x:graph[v]){
-                score[x]+=score[v];
-                dfs(x);
+        result[node]+=weight;
+
+        for (int next:graph.get(node)){
+            dfs(next,weight+weights[next]);
         }
+    }
+    private static void print(){
+        for (int i=1;i<=n;i++){
+            sb.append(result[i]).append(" ");
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        init();
+        dfs(1,0);
+        print();
+        System.out.println(sb);
     }
 }
