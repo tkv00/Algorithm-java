@@ -1,128 +1,141 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Main {
-    private static StringBuilder sb = new StringBuilder();
-    private static StringBuilder rootS;
-    private static int n, m;
+    private static int n,m;
     private static StringTokenizer st;
     private static BufferedReader br;
-    private static int[][] distMap;
-    private static int[][] next;
-    private static final int INF = 1_000_000;
-
+    private static final int MAX_VALUE=10_000_001;
+    private static int[][] map;
+    private static StringBuilder sb;
+    private static List<Integer>[][] rootMap;
     private static void init() throws IOException {
-        br = new BufferedReader(new InputStreamReader(System.in));
-        n = Integer.parseInt(br.readLine());
-        m = Integer.parseInt(br.readLine());
-        distMap = new int[n + 1][n + 1];
-        next = new int[n + 1][n + 1];
+        br=new BufferedReader(new InputStreamReader(System.in));
+        n=Integer.parseInt(br.readLine());
+        m=Integer.parseInt(br.readLine());
+        rootMap=new List[n+1][n+1];
+        sb=new StringBuilder();
 
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) {
-                distMap[i][j] = INF;
+        map=new int[n+1][n+1];
+
+        for (int i=0;i<=n;i++){
+            for (int j=0;j<=n;j++){
+                rootMap[i][j]=new ArrayList<>();
             }
         }
 
-        for (int i = 1; i <= n; i++) {
-            distMap[i][i] = 0;
+        for (int i=1;i<=n;i++){
+            Arrays.fill(map[i],MAX_VALUE);
+            map[i][i]=0;
         }
 
-        //버스 정보
-        for (int i = 0; i < m; i++) {
-            st = new StringTokenizer(br.readLine());
-            //시작 도시
-            int start_node = Integer.parseInt(st.nextToken());
-            ///도착 도시
-            int end_node = Integer.parseInt(st.nextToken());
-            //비용
-            int cost = Integer.parseInt(st.nextToken());
+        for (int i=0;i<m;i++){
+            st=new StringTokenizer(br.readLine());
+            int city_1=Integer.parseInt(st.nextToken());
+            int city_2=Integer.parseInt(st.nextToken());
+            int cost=Integer.parseInt(st.nextToken());
 
-            distMap[start_node][end_node] = Math.min(distMap[start_node][end_node], cost);
-            next[start_node][end_node] = end_node;
+            map[city_1][city_2]=Math.min(cost,map[city_1][city_2]);
         }
     }
 
-    private static void floyd_warshall() {
-        for (int k = 1; k <= n; k++) {
-            for (int row = 1; row <= n; row++) {
-                for (int col = 1; col <= n; col++) {
-                    if (distMap[row][col] > distMap[row][k] + distMap[k][col]) {
-                        next[row][col] = next[row][k];
-                        distMap[row][col] = distMap[row][k] + distMap[k][col];
+    private static void operation(){
+        for (int k=1;k<=n;k++){
+            for (int i=1;i<=n;i++){
+                for (int j=1;j<=n;j++){
+                    if (i==j) {
+                        rootMap[i][j].add(0);
+                        continue;
+                    };
+
+                    if (map[i][j]>map[i][k]+map[k][j]){
+                        trackingRoot(i,k,j);
+                        map[i][j]=map[i][k]+map[k][j];
                     }
                 }
             }
         }
     }
 
-
-    //경로 역추적
-    private static List<Integer> reverse_find(int start, int end) {
-        List<Integer> path = new ArrayList<>();
-
-        if (next[start][end] == 0) {
-            return path;
+    private static void printMap(){
+        for (int i=1;i<=n;i++){
+            for (int j=1;j<=n;j++){
+                if (map[i][j]==MAX_VALUE){
+                    sb.append(0).append(" ");
+                    continue;
+                }
+                sb.append(map[i][j]).append(" ");
+            }
+            sb.append("\n");
         }
 
-        path.add(start);
-        while (start != end) {
-            start = next[start][end];
-            path.add(start);
+        //경로 출력
+        for (int i=1;i<=n;i++){
+            for (int j=1;j<=n;j++){
+                if (i==j || map[i][j]==MAX_VALUE){
+                    sb.append("0").append("\n");
+                    continue;
+                }
+
+                if (rootMap[i][j].isEmpty()){
+                    sb
+                            .append(2)
+                            .append(" ")
+                            .append(i)
+                            .append(" ")
+                            .append(j)
+                            .append("\n");
+                    continue;
+                }
+
+                sb
+                        .append(rootMap[i][j].size()+2)
+                        .append(" ")
+                        .append(i)
+                        .append(" ");
+
+                for (int x:rootMap[i][j])
+                    sb.append(x).append(" ");
+
+                sb.append(j).append("\n");
+            }
         }
 
-        return path;
+        System.out.println(sb);
     }
 
-    private static void result() {
-        for (int start = 1; start <= n; start++) {
-            for (int end = 1; end <= n; end++) {
-                if (start == end) sb.append("0").append("\n");
-                else {
-                    reverse_find(start, end);
-                }
+    private static void trackingRoot(int i,int k,int j){
+        rootMap[i][j].clear();
+
+        for (int next:rootMap[i][k]){
+            rootMap[i][j].add(next);
+        }
+
+        rootMap[i][j].add(k);
+
+        for (int next:rootMap[k][j]){
+            rootMap[i][j].add(next);
+        }
+    }
+    private static void print(){
+        for (int i=1;i<=n;i++){
+            for (int j=1;j<=n;j++){
+                System.out.print(i+"->"+j+" : ");
+                System.out.println(rootMap[i][j]);
             }
+
+            System.out.println();
         }
     }
 
     public static void main(String[] args) throws IOException {
         init();
-        floyd_warshall();
-
-        for (int i=1;i<=n;i++){
-            for (int j=1;j<=n;j++){
-                if (distMap[i][j]==INF) {
-                    sb.append("0").append(" ");
-                    continue;
-                }
-                sb.append(distMap[i][j]).append(" ");
-            }
-            sb.append("\n");
-        }
-
-
-        for (int row=1;row<=n;row++){
-            for (int col=1;col<=n;col++){
-                if (row==col){
-                    sb.append("0");
-                }else {
-                    List<Integer> path=reverse_find(row,col);
-                    if (path.isEmpty()){
-                        sb.append("0").append(" ");
-                        continue;
-                    }
-                    sb.append(path.size()).append(" ");
-
-                    for (int k:path){
-                        sb.append(k).append(" ");
-                    }
-                }
-
-                sb.append("\n");
-            }
-        }
-        System.out.println(sb);
+        operation();
+        printMap();
     }
 }
