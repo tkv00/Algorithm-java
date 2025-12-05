@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,119 +6,139 @@ import java.util.*;
 
 public class Main {
     private static int N;
-    private static int[] persons;
+    private static final int DONT = -1;
     private static StringTokenizer st;
     private static BufferedReader br;
-    private static HashMap<Integer, List<Integer>> map;
-    private static final int AREA_1 = 1;
-    private static final int AREA_2 = 2;
-    private static int MIN = Integer.MAX_VALUE;
-    //선거구 판단 배열
-    private static int[] division;
+    private static int[] peoples;
+    private static Map<Integer, List<Integer>> graph;
+    private static int[] arr;
+    private static final int BLUE = 1;
+    private static final int RED = 2;
+    private static int result = Integer.MAX_VALUE;
+
+    private static void combination(int idx) {
+        if (idx > N) {
+            //영역이 1개 이하인 경우
+            if (countDivision() <= 1) return;
+            //영역이 연결되어 있지 않은 경우
+            if (!isConnected()) return;
+
+
+            result = Math.min(result, countDiff());
+            return;
+        }
+        arr[idx] = BLUE;
+        combination(idx + 1);
+
+        arr[idx] = RED;
+        combination(idx + 1);
+    }
+
+    //나누어진 영역 개수 세기
+    private static int countDivision() {
+        Set<Integer> set = new HashSet<>();
+        for (int i = 1; i <= N; i++) {
+            set.add(arr[i]);
+        }
+
+        return set.size();
+    }
+
+    //인구 수 차이 세기
+    private static int countDiff() {
+        int redCount = 0;
+        int blueCount = 0;
+
+        for (int i = 1; i <= N; i++) {
+            if (arr[i] == RED) redCount += peoples[i];
+            if (arr[i] == BLUE) blueCount += peoples[i];
+        }
+
+        return Math.abs(redCount - blueCount);
+    }
+
+    private static boolean[] visited;
+
+    //각 영역들이 이어져 있는지 확인
+    private static boolean isConnected() {
+        visited = new boolean[N + 1];
+
+        //RED 첫 번째 인덱스 넣기
+        for (int i = 1; i <= N; i++) {
+            if (arr[i] == RED) {
+                bfs(i);
+                break;
+            }
+        }
+
+        //BLUE 첫 번째 인덱스 넣기
+        for (int i = 1; i <= N; i++) {
+            if (arr[i] == BLUE) {
+                bfs(i);
+                break;
+            }
+        }
+
+        for (int i = 1; i <= N; i++) {
+            if (!visited[i]) return false;
+        }
+
+        return true;
+    }
+
+    private static void bfs(int node) {
+        Queue<Integer> q = new LinkedList<>();
+        q.offer(node);
+        visited[node] = true;
+
+        while (!q.isEmpty()) {
+            int now = q.poll();
+            if (graph.get(now)==null) continue;
+
+            for (int next : graph.get(now)) {
+                if (visited[next]) continue;
+                if (arr[next] != arr[now]) continue;
+
+                visited[next] = true;
+                q.offer(next);
+            }
+        }
+    }
 
     private static void init() throws IOException {
         br = new BufferedReader(new InputStreamReader(System.in));
-
         N = Integer.parseInt(br.readLine());
+        peoples = new int[N + 1];
+        arr = new int[N + 1];
+        graph = new HashMap<>();
+
         st = new StringTokenizer(br.readLine());
-        persons = new int[N + 1];
-        map = new HashMap<>();
-        division = new int[N + 1];
 
-        for (int i = 0; i < N; i++) {
-            persons[i + 1] = Integer.parseInt(st.nextToken());
-            map.put(i + 1, new ArrayList<>());
+        for (int i = 1; i <= N; i++) {
+            peoples[i] = Integer.parseInt(st.nextToken());
         }
 
-        for (int i = 0; i < N; i++) {
+        for (int i = 1; i <= N; i++) {
             st = new StringTokenizer(br.readLine());
-            int count = Integer.parseInt(st.nextToken());
-            for (int c = 0; c < count; c++) {
-                int num = Integer.parseInt(st.nextToken());
-                map.get(i + 1).add(num);
+            int num = Integer.parseInt(st.nextToken());
+
+            if (num == 0) continue;
+
+            for (int j = 0; j < num; j++) {
+                int node = Integer.parseInt(st.nextToken());
+                graph.putIfAbsent(i, new ArrayList<>());
+                graph.putIfAbsent(node, new ArrayList<>());
+
+                graph.get(i).add(node);
+                graph.get(node).add(i);
             }
         }
-    }
-
-    private static void DFS(int depth) {
-        if (depth > N) {
-            if (isChecked()) {
-                MIN = Math.min(diff(), MIN);
-            }
-            return;
-        }
-
-
-        //선거 1구역 처리
-        division[depth] = AREA_1;
-        DFS(depth + 1);
-
-        //선거 2구역 처리
-        division[depth] = AREA_2;
-        DFS(depth + 1);
-    }
-
-
-    //인구수 차이 판단
-    private static int diff() {
-        int sum1 = 0, sum2 = 0;
-
-        for (int i = 1; i <= N; i++) {
-            if (division[i] == AREA_1) sum1 += persons[i];
-            if (division[i] == AREA_2) sum2 += persons[i];
-        }
-
-        return Math.abs(sum1 - sum2);
-    }
-
-    /**
-     * 불가능한 방법 2 - 나누어져 있지만 연결되어 있지 않은 경우
-     */
-    private static boolean isConnected(int start) {
-        boolean[] visit = new boolean[N + 1];
-        ArrayDeque<Integer> dq = new ArrayDeque<>();
-        visit[start] = true;
-        dq.addFirst(start);
-
-        while (!dq.isEmpty()) {
-            int now = dq.pollLast();
-            for (int x : map.get(now)) {
-                //방문하지 않았고 같은 선거구역인 경우
-                if (!visit[x] && (division[x] == division[now])) {
-                    visit[x] = true;
-                    dq.addFirst(x);
-                }
-            }
-        }
-
-        for (int i = 1; i <= N; i++) {
-            if (division[start] == division[i] && !visit[i]) return false;
-        }
-        return true;
-
-    }
-
-    private static boolean isChecked() {
-        //선거구 1지역 확인
-        int start1=-1,start2=-1;
-
-        for (int i=1;i<=N;i++){
-            if(division[i]==AREA_1 && start1==-1) start1=i;
-            if (division[i]==AREA_2 && start2==-1) start2=i;
-        }
-
-        if(start1==-1 || start2==-1) return false;
-
-        if (!isConnected(start1)) return false;
-        if (!isConnected(start2)) return false;
-
-        return true;
     }
 
     public static void main(String[] args) throws IOException {
         init();
-        DFS(1);
+        combination(1);
 
-        System.out.println(MIN == Integer.MAX_VALUE ? -1 : MIN);
+        System.out.println(result == Integer.MAX_VALUE ? -1 : result);
     }
 }
