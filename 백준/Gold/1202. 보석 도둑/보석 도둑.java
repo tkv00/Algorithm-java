@@ -1,25 +1,20 @@
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
+import java.util.StringTokenizer;
 
 public class Main {
-    private static StringTokenizer st;
     private static BufferedReader br;
-    private static int N, K;
-    private static int[] bags;
-    private static List<Stone> list;
-    private static long result=0;
-
-    private static class Stone {
-        int weight;
-        int value;
-
-        Stone(int weight, int value) {
-            this.value = value;
-            this.weight = weight;
-        }
-    }
+    private static StringTokenizer st;
+    private static int N, K;//K:가방개수
+    private static List<Integer> bags;
+    private static long result = 0;
+    private static PriorityQueue<int[]> jewels;
+    private static PriorityQueue<Integer> values;
 
     private static void init() throws IOException {
         br = new BufferedReader(new InputStreamReader(System.in));
@@ -28,40 +23,37 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
 
-        bags = new int[K];
-        list=new ArrayList<>();
-
+        jewels = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        values = new PriorityQueue<>((a, b) -> b - a);
+        bags = new ArrayList<>();
 
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            int weight = Integer.parseInt(st.nextToken());
-            int value = Integer.parseInt(st.nextToken());
+            int M = Integer.parseInt(st.nextToken());
+            int V = Integer.parseInt(st.nextToken());
 
-            list.add(new Stone(weight,value));
+            jewels.add(new int[]{M, V});
         }
-
-        list.sort((a,b)->a.weight-b.weight);
 
         for (int i = 0; i < K; i++) {
-            bags[i] = Integer.parseInt(br.readLine());
+            int n = Integer.parseInt(br.readLine());
+            bags.add(n);
         }
 
-        Arrays.sort(bags);
+        bags.sort((a, b) -> a - b);
     }
 
+
     private static void operation() {
-        PriorityQueue<Integer> pq=new PriorityQueue<>((a,b)->b.compareTo(a));
-        int idx=0;
-
-        for (int bag : bags) {
-            while (idx<N && bag>=list.get(idx).weight){
-                pq.offer(list.get(idx).value);
-                idx++;
+        for (int i = 0; i < K; i++) {
+            while (!jewels.isEmpty() && jewels.peek()[0]<=bags.get(i)) {
+                int[] jewel=jewels.poll();
+                values.offer(jewel[1]);
             }
-
-            if (!pq.isEmpty()) result+=pq.poll();
+            if (!values.isEmpty()){
+                result+=values.poll();
+            }
         }
-
     }
 
     public static void main(String[] args) throws IOException {
