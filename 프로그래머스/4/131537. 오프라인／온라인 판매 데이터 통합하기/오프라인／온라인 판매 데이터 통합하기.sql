@@ -1,22 +1,20 @@
-select
-    date_format(sales_date,'%Y-%m-%d') as sales_date,
-    product_id,
-    user_id,
-    sales_amount
-from
-    online_sale
-where
-    year(sales_date)=2022 and month(sales_date)=3
-union all
+SELECT
+    DATE_FORMAT(SALES_DATE,'%Y-%m-%d') AS SALES_DATE,PRODUCT_ID,USER_ID,SALES_AMOUNT
+FROM
+    ONLINE_SALE
+WHERE
+    YEAR(SALES_DATE) = '2022' AND MONTH(SALES_DATE) ='3'
 
-select
-    date_format(sales_date,'%Y-%m-%d') as sales_date,
-    product_id,
-    NULL as user_id,
-    sales_amount
-from
-    offline_sale
-where
-    year(sales_date)=2022 and month(sales_date)=3
-order by
-    sales_date asc,product_id asc,user_id asc;
+UNION ALL
+
+SELECT
+     DATE_FORMAT(SALES_DATE,'%Y-%m-%d') AS SALES_DATE,PRODUCT_ID,NULL,SALES_AMOUNT
+FROM
+    OFFLINE_SALE
+WHERE
+    YEAR(SALES_DATE) = '2022' AND MONTH(SALES_DATE) ='3'
+ 
+
+
+ORDER BY SALES_DATE ASC,PRODUCT_ID ASC, USER_ID ASC
+ ;
