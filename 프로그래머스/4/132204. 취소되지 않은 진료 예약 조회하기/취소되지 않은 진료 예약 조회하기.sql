@@ -1,23 +1,17 @@
-select
-    a.apnt_no,
-    p.pt_name,
-    p.pt_no,
-    a.mcdp_cd,
-    d.dr_name,
-    a.apnt_ymd
+select 
+    a.apnt_no as APNT_NO,
+    p.pt_name as PT_NAME,
+    a.pt_no as PT_NO,
+    a.mcdp_cd as MCDP_CD,
+    d.dr_name AS DR_NAME,
+    a.apnt_ymd AS APNT_YMD
 from
     patient as p
-    inner join
-    appointment as a
-    on p.pt_no = a.pt_no
-    inner join
-    doctor as d
-    on d.dr_id = a.mddr_id
+    join appointment as a on p.pt_no = a.pt_no
+    join doctor as d on d.dr_id = a.mddr_id
 where
-    date_format(a.apnt_ymd,'%Y-%m-%d') = '2022-04-13'
-    and
-    d.mcdp_cd like 'CS'
+    date_format(a.apnt_ymd,'%Y-%m-%d')='2022-04-13'
     and
     a.apnt_cncl_yn = 'N'
 order by
-    a.apnt_ymd asc;
+    APNT_YMD asc;
