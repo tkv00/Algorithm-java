@@ -1,92 +1,70 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.StringTokenizer;
 
-import static java.lang.System.exit;
-
 public class Main {
-    public static class Point {
-        int x;
-        int y;
+    private static int R, C;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static char[][] map;
+    private static boolean[][] visited;
+    private static int[] dx = new int[]{0, 0, 1, -1};
+    private static int[] dy = new int[]{1, -1, 0, 0};
+    private static int result = 0;
+    private static Set<Character> duplicated;
 
-        Point(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
+    private static boolean isValid(int row, int col) {
+        return row >= 0 && row < R && col >= 0 && col < C && !visited[row][col];
     }
 
-    public static int R;
-    public static int C;
-    public static char[][] map;
-    public static boolean[] visited;
-    public static int[] dx = {0, 0, 1, -1};
-    public static int[] dy = {1, -1, 0, 0};
-    public static int res = 0;
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        st = new StringTokenizer(br.readLine());
+        duplicated = new HashSet<>();
 
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
         R = Integer.parseInt(st.nextToken());
         C = Integer.parseInt(st.nextToken());
+
         map = new char[R][C];
+        visited = new boolean[R][C];
+
         for (int i = 0; i < R; i++) {
-            String str = br.readLine();
-            map[i] = str.toCharArray();
-        }
-        visited = new boolean[26];
-        if(R==1 && C==1){
-            System.out.println(1);
-            exit(0);
-        }
-        dfs(0, 0, 0);
-        System.out.println(res);
-    }
-
-    //    public static int bfs(int x, int y) {
-//        Queue<Point> queue = new LinkedList<>();
-//        queue.add(new Point(x, y));
-//        visited[trans(map[x][y])] = true;
-//        int cnt=1;
-//        while (!queue.isEmpty()) {
-//            Point nowPoint = queue.poll();
-//            for (int i = 0; i < 4; i++) {
-//                int nextX = nowPoint.x + dx[i];
-//                int nextY = nowPoint.y + dy[i];
-//                if ((nextX >= 0 && nextX < R) && (nextY >= 0 && nextY < C) && (!visited[trans(map[nextX][nextY])])){
-//                    queue.add(new Point(nextX,nextY));
-//                    visited[trans(map[nextX][nextY])]=true;
-//                    cnt++;
-//                }
-//            }
-//        }
-//        return cnt;
-//
-//    }
-    public static void dfs(int x, int y, int cnt) {
-        if (visited[trans(map[x][y])]) {
-            res = Math.max(res, cnt);
-            return;
-        }
-        else {
-            visited[trans(map[x][y])] = true;
-            for (int i = 0; i < 4; i++) {
-                int nextX = x + dx[i];
-                int nextY = y + dy[i];
-                if ((nextX >= 0 && nextX < R) && (nextY >= 0 && nextY < C)) {
-                    dfs(x + dx[i], y + dy[i], cnt+1);
-                }
-
+            String input = br.readLine();
+            for (int j = 0; j < C; j++) {
+                map[i][j] = input.charAt(j);
             }
-            visited[trans(map[x][y])] = false;
         }
-
     }
 
-    public static int trans(char c) {
-        return (int) c - 65;
+    private static void operation(int row, int col, int cnt) {
+        result=Math.max(result,cnt);
+        for (int d = 0; d < 4; d++) {
+            int nr = row + dx[d];
+            int nc = col + dy[d];
+
+            if (!isValid(nr,nc) || duplicated.contains(map[nr][nc])) continue;
+
+            duplicated.add(map[nr][nc]);
+            visited[nr][nc] = true;
+
+           
+            operation(nr, nc, cnt + 1);
+
+            duplicated.remove(map[nr][nc]);
+            visited[nr][nc] = false;
+
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        init();
+        visited[0][0]=true;
+        duplicated.add(map[0][0]);
+        operation(0, 0, 1);
+
+        System.out.println(result);
     }
 }
