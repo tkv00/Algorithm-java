@@ -1,113 +1,112 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
 public class Main {
-    static class Point{
-        int row;
-        int col;
-        Point(int row,int col){
-            this.row=row;
-            this.col=col;
-        }
-    }
-    static int N;
-    static int L;
-    static int R;
-    static StringTokenizer st;
-    static int[][]map;
-    static int[] dx={1,0,-1,0};
-    static int[] dy={0,1,0,-1};
-    static boolean[][] visited;
-    static int day=0;
-
-    public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
-        st=new StringTokenizer(br.readLine());
+    private static int N, L, R;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static int[][] map;
+    private static ArrayList<int[]> list;
+    private static boolean[][] visited;
+    private static int[] dx = new int[]{0, 0, 1, -1};
+    private static int[] dy = new int[]{1, -1, 0, 0};
 
 
-        N=Integer.parseInt(st.nextToken());
-        L=Integer.parseInt(st.nextToken());
-        R=Integer.parseInt(st.nextToken());
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        st = new StringTokenizer(br.readLine());
 
-        map=new int[N][N];
-        visited=new boolean[N][N];
+        N = Integer.parseInt(st.nextToken());
+        L = Integer.parseInt(st.nextToken());
+        R = Integer.parseInt(st.nextToken());
 
-        for(int i=0;i<N;i++){
-            st=new StringTokenizer(br.readLine());
-            for(int j=0;j<N;j++){
-                map[i][j]=Integer.parseInt(st.nextToken());
+        map = new int[N][N];
+        visited = new boolean[N][N];
+
+        for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
+            for (int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
             }
         }
+    }
 
-        while (true){
-            visited=new boolean[N][N];
-            boolean move=false;
+    private static int operation() {
+        int day = 0;
+        while (true) {
+            boolean isMove = false;
+            visited = new boolean[N][N];
 
-            for(int i=0;i<N;i++){
-                for(int j=0;j<N;j++){
-                    if(!visited[i][j]){
-                        int size=bfs(i,j);
-                        if(size>1){
-                            move=true;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    if (!visited[i][j]) {
+                        list = new ArrayList<>();
+                        list.add(new int[]{i, j});
+                        int sum = dfs(i, j);
+
+                        if (list.size() > 1) {
+                            changeValue(sum);
+                            isMove = true;
                         }
                     }
                 }
             }
-            if(!move)break;
+            if (!isMove) return day;
             day++;
         }
-        System.out.println(day);
-
-
-
-    }
-    //경계
-    static boolean isValid(int x,int y){
-        if(x<0 || x>=N || y<0 || y>=N) return false;
-        return true;
-    }
-    //문제 범위
-    static boolean isValid2(int x1,int y1,int x2,int y2){
-        int t=Math.abs(map[x1][y1]-map[x2][y2]);
-        if(t>=L && t<=R)return true;
-        return false;
     }
 
-    static int bfs(int x,int y){
-        Queue<Point> queue=new LinkedList<>();
-        List<Point> union=new ArrayList<>();
+    private static int dfs(int x, int y) {
+        Queue<int[]> q = new LinkedList<>();
+        q.offer(new int[]{x, y});
+        int sum = map[x][y];
 
-        queue.add(new Point(x,y));
-        visited[x][y]=true;
+        visited[x][y] = true;
 
-        int sum=0;
-        while (!queue.isEmpty()){
-            Point point=queue.poll();
-            int nowRow=point.row;
-            int nowCol= point.col;
-            union.add(new Point(nowRow,nowCol));
-            sum+=map[nowRow][nowCol];
-            for(int i=0;i<4;i++){
-                int newRow=nowRow+dx[i];
-                int newCol=nowCol+dy[i];
-                if(isValid(newRow,newCol)&&!visited[newRow][newCol]&&isValid2(nowRow,nowCol,newRow,newCol)){
-                    queue.add(new Point(newRow,newCol));
-                    visited[newRow][newCol]=true;
 
+        while (!q.isEmpty()) {
+            int[] now = q.poll();
+
+            for (int d = 0; d < 4; d++) {
+                int nx = dx[d] + now[0];
+                int ny = dy[d] + now[1];
+
+                if (isValidPosition(nx, ny) && !visited[nx][ny]) {
+                    int nowValue = map[now[0]][now[1]];
+                    int newValue = map[nx][ny];
+                    int diff = Math.abs(nowValue - newValue);
+                    if (diff < L || R < diff) continue;
+
+                    q.offer(new int[]{nx, ny});
+                    sum += map[nx][ny];
+                    list.add(new int[]{nx, ny});
+                    visited[nx][ny] = true;
                 }
             }
         }
-        if(union.size()>1){
-            int avg=sum/union.size();
-            for(Point p:union){
-                map[p.row][p.col]=avg;
-            }
-        }
-        return union.size();
-
-
+        return sum;
     }
 
+    private static boolean isValidPosition(int x, int y) {
+        return x >= 0 && x < N && y >= 0 && y < N;
+    }
+
+    private static void changeValue(int sum) {
+        int avg = sum / list.size();
+
+        for (int[] point : list) {
+            map[point[0]][point[1]] = avg;
+        }
+    }
+
+
+    public static void main(String[] args) throws IOException {
+        init();
+        System.out.print(operation());
+    }
 }
