@@ -1,88 +1,80 @@
 import java.util.*;
 class Solution {
-    /**
-    격자의 칸 - 0:비어 있음 / 1:벽
-    출발점 (0,0) / 도착점 (N-1,N-1)
-    직선 도로 : 100원 / 코너 : 500원
-    경주로 건설 최소 비용 구하기
-    **/
-    private static class Node{
-        int x;
-        int y;
-        int cost;
-        int dir;
-        
-        Node(int x,int y,int cost,int dir){
-            this.x=x;
-            this.y=y;
-            this.cost=cost;
-            this.dir=dir;
-        }
-    }
-    private static final int[] dx=new int[]{0,-1,0,1}; //left,up,right,down
-    private static final int[] dy=new int[]{-1,0,1,0};
-    private static ArrayDeque<Node> dq;
-    private static boolean isValid(int row,int col,int R,int C,int[][] map){
-        return row>=0 && row<R && col>=0 && col<C && map[row][col]==0;
+    private static final int EMPTY=0;
+    private static final int WALL=1;
+    //직선 도로 -> 100원
+    private static final int STR=100;
+    //코너 -> 500원
+    private static final int CORNER=500;
+    
+    private static int[] dx=new int[]{0,1,0,-1};//오른쪽, 아래, 왼쪽, 위
+    private static int[] dy=new int[]{1,0,-1,0};
+    
+    private static int rowSize;
+    private static int colSize;
+    private static int[][][] costMap;
+    private static final int INF=987654321;
+    private static PriorityQueue<int[]> q = new PriorityQueue<>((a,b)->a[3]-b[3]); 
+    
+    private static boolean isValid(int row,int col,int d){
+        return row>=0 && row<rowSize && col>=0 && col<colSize ;
     }
     
-    //방향에 따라 cost추가
-    private static int calculateCost(int prevDir,int nowDir,int prevCost){
-        //직선
-        if(prevDir == -1 || (prevDir-nowDir)%2==0){
-            return prevCost+STRAIGHT;
+    private static void setUpMaxValue(){
+        for(int i=0;i<rowSize;i++){
+            for(int j=0;j<colSize;j++){
+                if(i==0 && j==0) continue;
+                
+                for(int k=0;k<4;k++){
+                    costMap[i][j][k]=INF;
+                }
+            }
         }
-        //곡선
-        else return prevCost+CORNER;
     }
-    
-    //새로운 좌표를 방문하지 않았거나 비용이 더 적을 때
-    private static boolean isShouldUpdate(int x,int y,int cost,int dir){
-        return visited[x][y][dir]==0 || visited[x][y][dir]>cost;
-    }
-    //직선 도로
-    private static final int STRAIGHT=100;
-    //곡선 도로
-    private static final int CORNER=600;
 
-    private static int totalCost;
-
-    //방문 여부
-    private static int[][][] visited;
-  
     public int solution(int[][] board) {
-        int size=board.length;
-        int endX=size-1;
-        int endY=size-1;
-        //4방향
-        visited=new int[size][size][4];
-        totalCost=Integer.MAX_VALUE;
+        rowSize=board.length;
+        colSize=board[0].length;
         
-        dq=new ArrayDeque<>();
-        dq.offer(new Node(0,0,0,-1));
+        costMap=new int[rowSize][colSize][4];
+        setUpMaxValue();
         
-        while(!dq.isEmpty()){
-            Node now=dq.poll();
+        q.offer(new int[]{0,0,0,0});
+        q.offer(new int[]{0,0,1,0});
+        
+        while(!q.isEmpty()){
+            int[] now=q.poll();
             
-            for(int i=0;i<4;i++){
-                int nx=now.x+dx[i];
-                int ny=now.y+dy[i];
+            for(int d=0;d<4;d++){
+                int nx=now[0]+dx[d];
+                int ny=now[1]+dy[d];
+                int prevDir=now[2];
+                int preCost=now[3];
                 
-                if(!isValid(nx,ny,size,size,board)) continue;
-                int newCost=calculateCost(now.dir,i,now.cost);
-                
-                if(isShouldUpdate(nx,ny,newCost,i)){
-                    visited[nx][ny][i]=newCost;
-                    dq.offer(new Node(nx,ny,newCost,i));
+                if(isValid(nx,ny,d) && board[nx][ny]==EMPTY){        
+                    int nextCost=0;
+                    
+                    if(prevDir==d){
+                        nextCost=preCost+100;
+                    }else{
+                        nextCost=preCost+600;
+                    }
+                    
+                    if(nextCost > costMap[nx][ny][d]) continue;
+                    
+                    costMap[nx][ny][d]=nextCost;
+                    q.offer(new int[]{nx,ny,d,nextCost});
                 }
             }
         }
         
+        int min=INF;
+        
         for(int i=0;i<4;i++){
-            if(visited[size-1][size-1][i]!=0){
-                totalCost=Math.min(totalCost,visited[size-1][size-1][i]);   
-            }
+            min=Math.min(min,costMap[rowSize-1][colSize-1][i]);
         }
-        return totalCost;
+        
+        return min;
+        
     }
 }
