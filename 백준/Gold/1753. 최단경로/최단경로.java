@@ -1,85 +1,83 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Main {
-    public static class Node implements Comparable<Node>{
-        int num;
-        int cost;
-        Node(int num,int cost){
-            this.cost=cost;
-            this.num=num;
-        }
+    private static class Node {
+        int node;
+        int weight;
 
-
-        @Override
-        public int compareTo(Node o) {
-            return this.cost-o.cost;
+        public Node(int node, int weight) {
+            this.node = node;
+            this.weight = weight;
         }
     }
-    public static int node;
-    public static int edge;
-    public static int startNum;
-    public static ArrayList<Node>[] graph;
-    public static int[] dp;
-    public static final int INF= (int)1e9;
-    public static StringTokenizer st;
-    public static PriorityQueue<Node> queue;
+
+    private static int V, E, K;
+    private static StringTokenizer st;
+    private static BufferedReader br;
+    private static final int INF = 987654321;
+    private static int[] dist;
+    private static Map<Integer, List<Node>> map;
+    private static PriorityQueue<Node> pq;
+    private static StringBuilder sb = new StringBuilder();
+
+    private static void init() throws IOException {
+        br = new BufferedReader(new InputStreamReader(System.in));
+        st = new StringTokenizer(br.readLine());
+        map = new HashMap<>();
+        sb = new StringBuilder();
+        pq = new PriorityQueue<>((a, b) -> a.weight - b.weight);
+
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
+
+        for (int x = 1; x <= V; x++) {
+            map.put(x, new ArrayList<>());
+        }
+
+        st = new StringTokenizer(br.readLine());
+        K = Integer.parseInt(st.nextToken());
+        dist = new int[V + 1];
+
+        for (int i = 0; i < E; i++) {
+            st = new StringTokenizer(br.readLine());
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            int weight = Integer.parseInt(st.nextToken());
+
+            map.get(start).add(new Node(end, weight));
+        }
+
+        Arrays.fill(dist, INF);
+    }
+
+    private static void operation() {
+        dist[K] = 0;
+        pq.offer(new Node(K, 0));
+
+        while (!pq.isEmpty()) {
+            Node now = pq.poll();
+
+            for (Node next : map.get(now.node)) {
+                if (dist[next.node] > next.weight + dist[now.node]) {
+                    dist[next.node] = next.weight + dist[now.node];
+                    pq.offer(new Node(next.node, dist[next.node]));
+                }
+            }
+        }
+    }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        init();
+        operation();
 
-        StringBuilder sb=new StringBuilder();
-        st=new StringTokenizer(br.readLine());
-
-        node=Integer.parseInt(st.nextToken());
-        edge=Integer.parseInt(st.nextToken());
-        startNum=Integer.parseInt(br.readLine());
-
-        graph=new ArrayList[node+1];
-       // visit=new boolean[node+1];
-        dp=new int[node+1];
-        for(int i=0;i<=node;i++){
-            graph[i]=new ArrayList<>();
-        }
-        for(int i=0;i<=node;i++){
-            dp[i]=INF;
-        }
-        dp[startNum]=0;
-        queue=new PriorityQueue<>();
-
-       // visit[startNum]=true;
-        queue.add(new Node(startNum,0));
-
-        for(int i=0;i<edge;i++){
-            st=new StringTokenizer(br.readLine());
-            int start=Integer.parseInt(st.nextToken());
-            int end=Integer.parseInt(st.nextToken());
-            int cost=Integer.parseInt(st.nextToken());
-
-            graph[start].add(new Node(end,cost));
+        for(int i=1;i<=V;i++){
+            if(dist[i]==INF) sb.append("INF").append("\n");
+            else sb.append(dist[i]).append("\n");
         }
 
-        //다익스트라 알고리즘
-        while (!queue.isEmpty()){
-            Node nowNode=queue.poll();
-            int v=nowNode.num;
-            for(Node node:graph[v]){
-                if( dp[node.num]>dp[v]+ node.cost){
-                    int num= node.num;;
-                    int cost=node.cost;
-                    dp[num]= nowNode.cost+cost;
-                    queue.add(new Node(num,dp[num]));
-                    
-                }
-
-            }
-
-        }
-        for(int i=1;i<=node;i++){
-            sb.append(dp[i] == INF ? "INF" : dp[i]).append('\n');
-        }
-        System.out.println(sb);
-
-
+        System.out.print(sb);
     }
 }
