@@ -1,94 +1,93 @@
 import java.util.*;
+import java.io.*;
 
 class Solution {
-    private static class Node{
-        Node left;
-        Node right;
-        int index;
+    static class Node{
         int x;
         int y;
+        int idx;
+        Node left;
+        Node right;
         
-        Node(int index,int x,int y){
-            this.index=index;
+        Node(int x,int y,int idx){
             this.x=x;
             this.y=y;
-            this.left=null;
-            this.right=null;
+            this.idx=idx;
+            this.left = null;
+            this.right = null;
         }
         
-        private void addLeft(Node node){
-            this.left=node;
+        void addNode(Node node){
+            //왼쪽
+            if(node.x < this.x){
+                if(this.left==null) this.left = node;
+                else{
+                    this.left.addNode(node);
+                }
+            }
+            //오른쪽
+            else{
+                if(this.right==null) this.right=node;
+                else{
+                    this.right.addNode(node);
+                }
+            }
         }
-        
-        private void addRight(Node node){
-            this.right=node;
-        }
-        
-        private int getIndex(){
-            return this.index;
+
+        @Override
+        public String toString(){
+            return "x="+x+" y="+y+" id="+idx;
         }
     }
-    private static void buildTree(Node parent,Node child){
-        if(child.y >= parent.y) return;
+    static List<Node> nodes;
+    static Node root;
+    static int preIdx;
+    
+    static void preorder(Node node){
+        if(node == null) return;
         
-        //왼쪽 자식
-        if(child.x<parent.x){
-            if(parent.left==null) parent.addLeft(child);
-            else buildTree(parent.left,child);
-        }
-        
-        //오른쪽 자식
-        if(child.x>parent.x ){
-            if(parent.right==null) parent.addRight(child);
-            else buildTree(parent.right,child);
-        }
+        preArr[preIdx++] = node.idx;
+        preorder(node.left);
+        preorder(node.right);
     }
     
-    //전위 순회
-    private static void preOrder(int depth,Node node){
-        if(node==null) return;
-        pre[preIdx++]=node.index;
-        preOrder(depth+1,node.left);
-        preOrder(depth+1,node.right);
+    static void postorder(Node node){
+        if(node == null) return;
+        
+        postorder(node.left);
+        postorder(node.right);
+        postArr[preIdx++]=node.idx;
     }
     
-    //후위 순회
-    private static void postOrder(int depth,Node node){
-        if(node==null) return;
-        postOrder(depth+1,node.left);
-        postOrder(depth+1,node.right);
-        post[postIdx++]=node.index;
-    }
+    static int[] preArr;
+    static int[] postArr;
     
-    private static Node[] nodes;
-    private static Node root;
-    private static int[] pre; //전위 순회
-    private static int[] post; //후위 순회
-    private static int preIdx;
-    private static int postIdx;
     public int[][] solution(int[][] nodeinfo) {
-        nodes=new Node[nodeinfo.length];
+        nodes = new ArrayList<>();
+        int idx=1;
+        
+        for(int[] info:nodeinfo){
+            nodes.add(new Node(info[0],info[1],idx++));
+        }
+        
+        preArr = new int[nodes.size()];
+        postArr = new int[nodes.size()];
+        
+        nodes.sort((a,b)->{
+            return b.y-a.y;
+        });
+        
+        root = nodes.get(0);
+        
+        for(int i=1;i<nodes.size();i++){
+            root.addNode(nodes.get(i));
+        }
+        
         preIdx=0;
-        postIdx=0;
+        preorder(root);
+        preIdx=0;
+        postorder(root);
         
-        for(int i=0;i<nodeinfo.length;i++){
-            nodes[i]=new Node(i+1,nodeinfo[i][0],nodeinfo[i][1]);
-        }
-        
-        pre=new int[nodeinfo.length];
-        post=new int[nodeinfo.length];
-        
-        Arrays.sort(nodes,(a,b)->a.y==b.y ? a.x-b.x : b.y-a.y);
-        root=nodes[0];
-        
-        for(int i=1;i<nodeinfo.length;i++){
-            buildTree(root,nodes[i]);
-        }
-        
-        preOrder(0,root);
-        postOrder(0,root);
-        
-        return new int[][]{pre,post};
-       
+        return new int[][]{preArr,postArr};
     }
 }
